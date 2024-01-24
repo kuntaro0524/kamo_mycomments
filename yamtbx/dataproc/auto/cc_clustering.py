@@ -149,9 +149,18 @@ class CCClustering(object):
         idx_bad = {}
         nans = []
         cc_data_for_html = []
+        # すべての組み合わせと結果を格納する
         for (i,j), (cc,nref) in zip(args, results):
             cc_data_for_html.append((i,j,cc,nref))
+            # ここでccがnanかどうかを判定している
+            # ここでnan　もしくは nrefがmin_common_refsより小さい場合はidx_badに格納
             if cc==cc and nref>=min_common_refs: continue
+            # idx_badという辞書に対して、iとjというキーが存在するかどうかをチェックし、
+            # 存在する場合はその値に1を加えます。存在しない場合は、新しいキーとして追加し、値を1とします。
+            # 具体的には、idx_bad.get(i, 0)は、idx_bad辞書からキーiに対応する値を取得します。
+            # もしキーが存在しない場合は、デフォルト値として0を返します。
+            # その後、取得した値に1を加えて、再びidx_bad[i]に代入します。同様に、idx_bad.get(j, 0)も行われます。
+            # つまり、このコードはidx_bad辞書において、iとjの出現回数をカウントしていると言えます。
             idx_bad[i] = idx_bad.get(i, 0) + 1
             idx_bad[j] = idx_bad.get(j, 0) + 1
             nans.append([i,j])
@@ -159,11 +168,42 @@ class CCClustering(object):
         if html_maker is not None:
             html_maker.add_cc_clustering_details(cc_data_for_html)
 
+        # idx_badをリストに変換して、値でソートする
+        # idx_bad　はある一つのデータのインデックスを示している
+        # ソートに利用しているのは、idx_badの要素のうち、2番目の要素
         idx_bad = list(idx_bad.items())
+        # lambda x:x[1]はidx_badの要素のうち、listの2番目の要素→つまり出現回数である
+        # 出現回数が多い→そのデータは良くないということを示す
         idx_bad.sort(key=lambda x:x[1])
+        # remove_idxesという集合を定義している
+        # setクラスは、重複のない要素の集合を表現するために使用されます。
+        # このクラスは、他のクラスやデータ構造と組み合わせて、集合演算（和集合、積集合、差集合など）を
+        # 実行するための便利なメソッドを提供します。
+        # 提供されたコードでは、remove_idxesという変数が定義されています。
+        # remove_idxesは、setクラスのインスタンスとして初期化されています。
+        # このセットは、要素の重複を許さず、順序を持ちません。
+        # このセットは、後続のコードで使用される可能性があります。
+        # 具体的には、セット内の要素のインデックスを削除するために使用されるかもしれません。
         remove_idxes = set()
-        
+
+        # nansには、ccがnanもしくはnrefがmin_common_refsより小さい組み合わせが格納されている
+        # 格納されているデータは、iとjの組み合わせ
+        # idx_badに格納されているのは、iとjの出現回数
+        # このループにおけるidxの意味は、idx_badに格納されているiとjの組み合わせのうち、
+        # 一番出現回数が多いものを取得している
+        # つまり、idxは、iとjの組み合わせのうち、一番出現回数が多いものを取得している
         for idx, badcount in reversed(idx_bad):
+            # このidxは idx_badのリストのうち、一番出現回数が多いものから順に処理している
+            # このコードは、nansというリスト内の要素の中にidxが含まれているかどうかをチェックしています。
+            # もし含まれている場合、continue文によってループの次のイテレーションに進みます。
+            # 具体的には、nansリスト内の各要素に対して、idxが含まれているかどうかをチェックしています。
+            # 内包表記[x for x in nans if idx in x]は、nansリスト内の要素の中でidxが含まれている要素だけを抽出して新しいリストを作成します。
+            # そして、その新しいリストの長さをlen()関数を使って取得しています。
+            # もし新しいリストの長さが0であれば、つまりidxがnansリスト内のどの要素にも含まれていない場合、
+            # continue文によってループの次のイテレーションに進みます。
+            # これにより、idxがnansリスト内の要素に含まれている場合のみ、ループの処理が実行されるようになります。
+            # このコードは、nansリスト内の要素に対して特定の条件を満たす要素を抽出するために使用されている可能性があります。
+            # 具体的な目的やコンテキストによって、このコードの役割や意味が異なる場合がありますので、追加の情報があれば教えてください。
             if len([x for x in nans if idx in x]) == 0: continue
             remove_idxes.add(idx)
             nans = [x for x in nans if idx not in x]
