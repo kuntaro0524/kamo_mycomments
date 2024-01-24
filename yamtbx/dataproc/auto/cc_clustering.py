@@ -169,7 +169,7 @@ class CCClustering(object):
             html_maker.add_cc_clustering_details(cc_data_for_html)
 
         # idx_badをリストに変換して、値でソートする
-        # idx_bad　はある一つのデータのインデックスを示している
+        # idx_bad　は一要素はある一つのデータのインデックスを示している
         # ソートに利用しているのは、idx_badの要素のうち、2番目の要素
         idx_bad = list(idx_bad.items())
         # lambda x:x[1]はidx_badの要素のうち、listの2番目の要素→つまり出現回数である
@@ -194,41 +194,49 @@ class CCClustering(object):
         # つまり、idxは、iとjの組み合わせのうち、一番出現回数が多いものを取得している
         for idx, badcount in reversed(idx_bad):
             # このidxは idx_badのリストのうち、一番出現回数が多いものから順に処理している
-            # このコードは、nansというリスト内の要素の中にidxが含まれているかどうかをチェックしています。
-            # もし含まれている場合、continue文によってループの次のイテレーションに進みます。
-            # 具体的には、nansリスト内の各要素に対して、idxが含まれているかどうかをチェックしています。
-            # 内包表記[x for x in nans if idx in x]は、nansリスト内の要素の中でidxが含まれている要素だけを抽出して新しいリストを作成します。
-            # そして、その新しいリストの長さをlen()関数を使って取得しています。
-            # もし新しいリストの長さが0であれば、つまりidxがnansリスト内のどの要素にも含まれていない場合、
-            # continue文によってループの次のイテレーションに進みます。
-            # これにより、idxがnansリスト内の要素に含まれている場合のみ、ループの処理が実行されるようになります。
-            # このコードは、nansリスト内の要素に対して特定の条件を満たす要素を抽出するために使用されている可能性があります。
-            # 具体的な目的やコンテキストによって、このコードの役割や意味が異なる場合がありますので、追加の情報があれば教えてください。
+            # idxがnansに含まれていない場合はこのデータは無視して良い
+            # 読み方）x for x in nans というので、nansの要素を一つずつ取り出している
+            # その要素の中にidxが含まれていない場合は、len([x for x in nans if idx in x]) == 0となる
             if len([x for x in nans if idx in x]) == 0: continue
+            # idxがnansに含まれている場合は、remove_idxesに追加
             remove_idxes.add(idx)
+            # nans の中から idx が含まれている要素を削除する
+            # こうすることで、idx とペアになっていたデータについても削除される
+            # もしも一回だけでなく、複数回出現している場合は、そのデータのインデックスは残っている
+            # こうすることで、対になっていたデータが悪くない場合にはそのデータが削除されることはない
+            # 天才的なコードですねぇ・・・
             nans = [x for x in nans if idx not in x]
             if len(nans) == 0: break
 
+        # ここまでで、remove_idxesには、悪いデータのインデックスが格納されている
+        # self.arrays の格納順、つまりデータのoriginal index順にチェック
+        # ここで、remove_idxesに格納されているデータを削除して use_inxes に有用データのインデックスを格納
         use_idxes = [x for x in range(len(self.arrays)) if x not in remove_idxes]
         N = len(use_idxes)
 
         # Make table: original index (in file list) -> new index (in matrix)
         count = 0
+        # ordered dictionaryを定義している
+        # ordered dictionaryとは、要素の順序を保持するdictionaryのこと
+        # org2now: は、original index (in file list) -> new index (in matrix)を表している
         org2now = collections.OrderedDict()
         for i in range(len(self.arrays)):
             if i in remove_idxes: continue
             org2now[i] = count
             count += 1
 
+        # リジェクトされたデータの名前を出力する
         if len(remove_idxes) > 0:
             open("%s_notused.lst"%prefix, "w").write("\n".join([list(self.arrays.keys())[x] for x in remove_idxes]))
 
         # Make matrix
         mat = numpy.zeros(shape=(N, N))
+        # すべてのCCを出力するための辞書（無効なものも格納する）
         self.all_cc = {}
         ofs = open("%s.dat"%prefix, "w")
         ofs.write("   i    j      cc  nref\n")
         for (i,j), (cc,nref) in zip(args, results):
+            # resultsにあったデータをすべて出力する
             ofs.write("%4d %4d % .4f %4d\n" % (i,j,cc,nref))
             self.all_cc[(i,j)] = cc
             if i not in remove_idxes and j not in remove_idxes:
