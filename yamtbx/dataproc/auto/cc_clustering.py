@@ -35,6 +35,7 @@ def calc_cc(ari, arj):
 # calc_cc()
 
 def read_xac_files(xac_files, d_min=None, d_max=None, min_ios=None):
+    # ordered dictionaryを定義している
     arrays = collections.OrderedDict()
 
     for f in xac_files:
@@ -43,6 +44,7 @@ def read_xac_files(xac_files, d_min=None, d_max=None, min_ios=None):
         a = xac.i_obs().resolution_filter(d_min=d_min, d_max=d_max)
         a = a.as_non_anomalous_array().merge_equivalents(use_internal_variance=False).array()
         if min_ios is not None: a = a.select(a.data()/a.sigmas()>=min_ios)
+        # arraysにはXDS_ASCIIのarrayが入っている(fobsをマージして格納した)
         arrays[f] = a
 
     return arrays
@@ -50,6 +52,7 @@ def read_xac_files(xac_files, d_min=None, d_max=None, min_ios=None):
 
 class CCClustering(object):
     def __init__(self, wdir, xac_files, d_min=None, d_max=None, min_ios=None):
+        # self.arraysはXDS_ASCIIのarray(fobsをマージして格納したもの)
         self.arrays = read_xac_files(xac_files, d_min=d_min, d_max=d_max, min_ios=min_ios)
         self.wdir = wdir
         self.clusters = {}
@@ -73,13 +76,14 @@ class CCClustering(object):
         prefix = os.path.join(self.wdir, "cctable")
         assert (b_scale, use_normalized).count(True) <= 1
 
+        # 距離マトリクスはここで定義している→オプションで指定することが可能
         distance_eqns = {"sqrt(1-cc)": lambda x: numpy.sqrt(1.-x),
                          "1-cc": lambda x: 1.-x,
                          "sqrt(1-cc^2)": lambda x: numpy.sqrt(1.-x**2),
         }
         cc_to_distance = distance_eqns[distance_eqn] # Fail when unknown options
+        # cluster_methodはオプションで指定することが可能　
         assert cluster_method in ("single", "complete", "average", "weighted", "centroid", "median", "ward") # available methods in scipy
-        
         
         if len(self.arrays) < 2:
             print("WARNING: less than two data! can't do cc-based clustering")
@@ -106,6 +110,7 @@ class CCClustering(object):
                                                          sigmas=arr.sigmas()*tmp)
             ofs_wilson.close()
 
+        # 規格化構造因子を利用したクラスタリング
         elif use_normalized:
             from mmtbx.scaling.absolute_scaling import kernel_normalisation
             failed = {}
@@ -124,12 +129,17 @@ class CCClustering(object):
                 raise Sorry("intensity normalization failed by following reason(s):\n%s"%msg)
                     
         # Prep 
+        # args: self.arraysに入っているarrayのindexの組み合わせを格納している
         args = []
         for i in range(len(self.arrays)-1):
             for j in range(i+1, len(self.arrays)):
                 args.append((i,j))
            
         # Calc all CC
+        # calc_ccという関数を呼び出すためのworkerという無名関数を定義しています。
+        # x: にはargsの要素が入るので最終的には (i, j)というのが入る
+        # 第一引数が i, 第二引数が j
+        # 結果: cc, nref の入った配列が返ってくる
         worker = lambda x: calc_cc(list(self.arrays.values())[x[0]], list(self.arrays.values())[x[1]])
         results = easy_mp.pool_map(fixed_func=worker,
                                    args=args,
@@ -139,9 +149,18 @@ class CCClustering(object):
         idx_bad = {}
         nans = []
         cc_data_for_html = []
+        # すべての組み合わせと結果を格納する
         for (i,j), (cc,nref) in zip(args, results):
             cc_data_for_html.append((i,j,cc,nref))
+            # ここでccがnanかどうかを判定している
+            # ここでnan　もしくは nrefがmin_common_refsより小さい場合はidx_badに格納
             if cc==cc and nref>=min_common_refs: continue
+            # idx_badという辞書に対して、iとjというキーが存在するかどうかをチェックし、
+            # 存在する場合はその値に1を加えます。存在しない場合は、新しいキーとして追加し、値を1とします。
+            # 具体的には、idx_bad.get(i, 0)は、idx_bad辞書からキーiに対応する値を取得します。
+            # もしキーが存在しない場合は、デフォルト値として0を返します。
+            # その後、取得した値に1を加えて、再びidx_bad[i]に代入します。同様に、idx_bad.get(j, 0)も行われます。
+            # つまり、このコードはidx_bad辞書において、iとjの出現回数をカウントしていると言えます。
             idx_bad[i] = idx_bad.get(i, 0) + 1
             idx_bad[j] = idx_bad.get(j, 0) + 1
             nans.append([i,j])
@@ -149,38 +168,75 @@ class CCClustering(object):
         if html_maker is not None:
             html_maker.add_cc_clustering_details(cc_data_for_html)
 
+        # idx_badをリストに変換して、値でソートする
+        # idx_bad　は一要素はある一つのデータのインデックスを示している
+        # ソートに利用しているのは、idx_badの要素のうち、2番目の要素
         idx_bad = list(idx_bad.items())
+        # lambda x:x[1]はidx_badの要素のうち、listの2番目の要素→つまり出現回数である
+        # 出現回数が多い→そのデータは良くないということを示す
         idx_bad.sort(key=lambda x:x[1])
+        # remove_idxesという集合を定義している
+        # setクラスは、重複のない要素の集合を表現するために使用されます。
+        # このクラスは、他のクラスやデータ構造と組み合わせて、集合演算（和集合、積集合、差集合など）を
+        # 実行するための便利なメソッドを提供します。
+        # 提供されたコードでは、remove_idxesという変数が定義されています。
+        # remove_idxesは、setクラスのインスタンスとして初期化されています。
+        # このセットは、要素の重複を許さず、順序を持ちません。
+        # このセットは、後続のコードで使用される可能性があります。
+        # 具体的には、セット内の要素のインデックスを削除するために使用されるかもしれません。
         remove_idxes = set()
-        
+
+        # nansには、ccがnanもしくはnrefがmin_common_refsより小さい組み合わせが格納されている
+        # 格納されているデータは、iとjの組み合わせ
+        # idx_badに格納されているのは、iとjの出現回数
+        # このループにおけるidxの意味は、idx_badに格納されているiとjの組み合わせのうち、
+        # 一番出現回数が多いものを取得している
+        # つまり、idxは、iとjの組み合わせのうち、一番出現回数が多いものを取得している
         for idx, badcount in reversed(idx_bad):
+            # このidxは idx_badのリストのうち、一番出現回数が多いものから順に処理している
+            # idxがnansに含まれていない場合はこのデータは無視して良い
+            # 読み方）x for x in nans というので、nansの要素を一つずつ取り出している
+            # その要素の中にidxが含まれていない場合は、len([x for x in nans if idx in x]) == 0となる
             if len([x for x in nans if idx in x]) == 0: continue
+            # idxがnansに含まれている場合は、remove_idxesに追加
             remove_idxes.add(idx)
+            # nans の中から idx が含まれている要素を削除する
+            # こうすることで、idx とペアになっていたデータについても削除される
+            # もしも一回だけでなく、複数回出現している場合は、そのデータのインデックスは残っている
+            # こうすることで、対になっていたデータが悪くない場合にはそのデータが削除されることはない
+            # 天才的なコードですねぇ・・・
             nans = [x for x in nans if idx not in x]
             if len(nans) == 0: break
 
+        # ここまでで、remove_idxesには、悪いデータのインデックスが格納されている
+        # self.arrays の格納順、つまりデータのoriginal index順にチェック
+        # ここで、remove_idxesに格納されているデータを削除して use_inxes に有用データのインデックスを格納
         use_idxes = [x for x in range(len(self.arrays)) if x not in remove_idxes]
         N = len(use_idxes)
 
         # Make table: original index (in file list) -> new index (in matrix)
         count = 0
+        # ordered dictionaryを定義している
+        # ordered dictionaryとは、要素の順序を保持するdictionaryのこと
+        # org2now: は、original index (in file list) -> new index (in matrix)を表している
         org2now = collections.OrderedDict()
         for i in range(len(self.arrays)):
             if i in remove_idxes: continue
             org2now[i] = count
             count += 1
 
+        # リジェクトされたデータの名前を出力する
         if len(remove_idxes) > 0:
             open("%s_notused.lst"%prefix, "w").write("\n".join([list(self.arrays.keys())[x] for x in remove_idxes]))
 
         # Make matrix
         mat = numpy.zeros(shape=(N, N))
+        # すべてのCCを出力するための辞書（無効なものも格納する）
         self.all_cc = {}
         ofs = open("%s.dat"%prefix, "w")
         ofs.write("   i    j      cc  nref\n")
         for (i,j), (cc,nref) in zip(args, results):
-            # modified for re-calculation of dendrogram after scaling
-            # K. Hirata modified. on 11th October 2024
+            # resultsにあったデータをすべて出力する
             ofs.write("%4d %4d %12.7f %4d\n" % (i,j,cc,nref))
             self.all_cc[(i,j)] = cc
             if i not in remove_idxes and j not in remove_idxes:
