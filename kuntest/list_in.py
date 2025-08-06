@@ -21,23 +21,32 @@ idx_bad[6] = 1
 idx_bad[10] = 3
 idx_bad[15] = 2
 
+# 単なるクラス定義
 remove_idxes = set()
 
 # listに変換してからsortする
 idx_bad = list(idx_bad.items())
+print("#### IDX_BAD #####")
+print(idx_bad)
+print("##################")
 idx_bad.sort(key=lambda x:x[1])
+print("#### 悪い回数の少ない順にソート ######")
+print(idx_bad)
+print("##################")
 
+# reverseしているので、悪い回数の多い順に処理される
 for idx, badcount in reversed(idx_bad):
     print("Current nans: ", nans)
     print("processing idx: ", idx)
     if len([x for x in nans if idx in x]) == 0: continue
-    print("GOGOGOGOG")
+    print(" found NAN idx=", idx)
     remove_idxes.add(idx)
 
     nans = [x for x in nans if idx not in x]
+    print("removed nans: ", nans)
     if len(nans) == 0: break
 
-print(remove_idxes)
+print(" Final remove_idxes: ", remove_idxes)
 
 # use_indxes 
 use_idxs = [x for x in range(len(arrays)) if x not in remove_idxes]
