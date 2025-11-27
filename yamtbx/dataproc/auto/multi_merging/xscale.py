@@ -48,6 +48,16 @@ class XscaleCycles(object):
         self.d_max = d_max
         self.reject_params = reject_params
         self.xscale_params = xscale_params
+        # 2025/11/27 K. Hirata added for 'large-wedge merging'
+        self.huge_large_wedge_merge = getattr(xscale_params, "huge_large_wedge_merge", False)
+        if self.huge_large_wedge_merge:
+            if not getattr(self.xscale_params, "suppress_correlations", False):
+                self.xscale_params.suppress_correlations = True
+            if not getattr(self.xscale_params, "disable_correction_images", False):
+                self.xscale_params.disable_correction_images = True
+            if self.xscale_params.fixed_corrections_line is None:
+                self.xscale_params.fixed_corrections_line = "DECAY ABSORPTION"
+
         self.res_params = res_params
         self.reference_choice = xscale_params.reference if not reference_file else None
         self.space_group = space_group # sgtbx.space_group object. None when user not supplied.
@@ -82,7 +92,13 @@ class XscaleCycles(object):
             snrc_kwd = "MINIMUM_I/SIGMA" if xds_built is not None and xds_built < "20191015" else "SNRC"
             self.xscale_inp_head += "%s= %.2f\n" % (snrc_kwd, xscale_params.min_i_over_sigma)
 
+        # K. Hirata added for 'a new xscale' in order to merge 3000 datasets 2025/11/26
         self.xscale_inp_head += "OUTPUT_FILE= xscale.hkl\n"
+        if getattr(self.xscale_params, "suppress_correlations", False):
+            self.xscale_inp_head += "PRINT_CORRELATIONS=FALSE\n"
+
+        if getattr(self.xscale_params, "disable_correction_images", False):
+            self.xscale_inp_head += "SAVE_CORRECTION_IMAGES=FALSE\n"
 
         if self.anomalous_flag is not None:
             self.xscale_inp_head += "FRIEDEL'S_LAW= %s\n" % ("FALSE" if self.anomalous_flag else "TRUE")
@@ -308,8 +324,14 @@ class XscaleCycles(object):
                 d_range = (float("inf") if self.d_max is None else self.d_max,
                            0.           if self.d_min is None else self.d_min)
                 inp_out.write("  INCLUDE_RESOLUTION_RANGE= %.4f %.4f\n" % d_range)
-            if len(self.xscale_params.corrections) != 3:
-                inp_out.write("  CORRECTIONS= %s\n" % " ".join(self.xscale_params.corrections))
+            # K. Hirata added. 2025/11/26 for 'a new xscale' in order to merge 3000 datasets
+            fixed_corr_line = getattr(self.xscale_params, "fixed_corrections_line", None)
+            if fixed_corr_line is not None:
+                inp_out.write("  CORRECTIONS= %s\n" % fixed_corr_line)
+            else:
+                if len(self.xscale_params.corrections) != 3:
+                    inp_out.write("  CORRECTIONS= %s\n" % " ".join(self.xscale_params.corrections))
+
             if (self.xscale_params.frames_per_batch, self.xscale_params.degrees_per_batch).count(None) < 2:
                 xactmp = XDS_ASCII(f, read_data=False)
                 frame_range = xactmp.get_frame_range()
@@ -320,7 +342,10 @@ class XscaleCycles(object):
                 else:
                     nbatch = int(numpy.ceil(nframes / self.xscale_params.degrees_per_batch * osc_range))
                 print("frame range of %s is %d,%d setting NBATCH= %d" % (f, frame_range[0], frame_range[1], nbatch), file=self.out)
-                inp_out.write("  NBATCH= %d\n" % nbatch)
+                if not getattr(self.xscale_params, "huge_large_wedge_merge", False):
+                    inp_out.write("  NBATCH= %d\n" % nbatch)
+                else:
+                    print("Skipping NBATCH setting for large-wedge merging.", file=self.out)
 
         inp_out.close()
 

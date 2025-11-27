@@ -91,6 +91,20 @@ xscale {
   .help = controls CORRECTIONS=. Use lower case to specify
  use_tmpdir_if_available = True
   .type = bool
+
+ huge_large_wedge_merge = False
+    .type = bool
+    .help = "If True, use settings for large-wedge merging (no NBATCH, PRINT_CORRELATIONS=FALSE, SAVE_CORRECTION_IMAGES=FALSE, CORRECTIONS= DECAY ABSORPTION)."
+
+ suppress_correlations = False
+  .type = bool
+  .help = "If True, write PRINT_CORRELATIONS=FALSE into XSCALE.INP header."
+ disable_correction_images = False
+  .type = bool
+  .help = "If True, write SAVE_CORRECTION_IMAGES=FALSE into XSCALE.INP header."
+ fixed_corrections_line = None
+  .type = str
+  .help = "If not None, write 'CORRECTIONS= <value>' for each INPUT_FILE in XSCALE.INP."
 }
 
 rejection {
@@ -224,7 +238,7 @@ batch {
  par_run = *deltacchalf merging
   .type = choice(multi=True)
   .help = What to run in parallel
- engine = sge slurm *sh
+ engine = sge pbs slurm *sh auto
   .type = choice(multi=False)
  sge_pe_name = par
   .type = str
@@ -417,11 +431,13 @@ def run(params):
 
     if not os.path.isdir(params.workdir):
         os.makedirs(params.workdir)
-
-    if params.batch.engine == "sge":
+    print("----------- engine ------" ,params.batch.engine)
+    if params.batch.engine == "auto":
+        params.batch.engine = batchjob.AutoJobManager()
+    elif params.batch.engine == "sge":
         batchjobs = batchjob.SGE(pe_name=params.batch.sge_pe_name)
     elif params.batch.engine == "slurm":
-        batchjobs = batchjob.Slurm()
+        batchjobs = batchjob.Slurm(pe_name=params.batch.sge_pe_name)
     elif params.batch.engine == "sh":
         batchjobs = batchjob.ExecLocal(max_parallel=params.batch.sh_max_jobs)
     else:
