@@ -88,8 +88,23 @@ rescut {
   .type = float
 }
 
+xscale {
+  huge_large_wedge_merge = False
+    .type = bool
+    .help = "If True, use settings for large-wedge merging (no NBATCH, PRINT_CORRELATIONS=FALSE, SAVE_CORRECTION_IMAGES=FALSE, CORRECTIONS= DECAY ABSORPTION)."
+  suppress_correlations = False
+    .type = bool
+    .help = If True, write PRINT_CORRELATIONS=FALSE into XSCALE.INP header.
+  disable_correction_images = False
+    .type = bool
+    .help = If True, write SAVE_CORRECTION_IMAGES=FALSE into XSCALE.INP header.
+  fixed_corrections_line = None
+    .type = str
+    .help = If not None, write 'CORRECTIONS= <value>' for each INPUT_FILE line.
+}
+
 batch {
- engine = sge sh *no
+ engine = sge sh slurm auto *no
   .type = choice(multi=False)
  sge_pe_name = par
   .type = str
@@ -100,11 +115,14 @@ batch {
  sh_max_jobs = 1
   .type = int
   .help = maximum number of concurrent jobs when engine=sh
+ mem_per_cpu = default
+  .type = str
+  .help = mem_per_cpu (slurm --mem option)
 }
 """ % multi_merge.master_params_str
 
 def read_sample_info(csvin, datadir=None):
-    reader = csv.reader(open(csvin, "rU"))
+    reader = csv.reader(open(csvin, "r"))
     header = [x.strip().lower() for x in next(reader)]
     hidxes = dict([(x[1],x[0]) for x in enumerate(header)])
     puck_flag = set(["uname","puck","pin","name"]).issubset(header)
@@ -403,6 +421,13 @@ def run(params):
     libtbx.phil.parse(gui_phil_str).format(params).show(out=log_out, prefix=" ")
     log_out.write("\n")
 
+    # xscale (top-level) is copied to merge.xscale 
+    # K. Hirata 2025/11/26 for 'a new xscale' 
+    if hasattr(params, "xscale") and hasattr(params.merge, "xscale"):
+        params.merge.xscale.suppress_correlations = params.xscale.suppress_correlations
+        params.merge.xscale.disable_correction_images = params.xscale.disable_correction_images
+        params.merge.xscale.fixed_corrections_line = params.xscale.fixed_corrections_line
+        params.merge.xscale.huge_large_wedge_merge = params.xscale.huge_large_wedge_merge
 
     if (params.space_group, params.unit_cell).count(None) == 1:
         log_out.write("Error: Specify both space_group and unit_cell!")
@@ -444,7 +469,12 @@ def run(params):
         if ref_filename in ref_arrays: continue
         ref_arrays[ref_filename] = read_reference_data(ref_filename, log_out)
 
-    if params.batch.engine == "sge":
+    print("----------- engine ------" ,params.batch.engine)
+    if params.batch.engine == "auto":
+        params.batch.engine = batchjob.AutoJobManager(pe_name=params.batch.sge_pe_name, mem_per_cpu=params.batch.mem_per_cpu)
+    elif params.batch.engine == "slurm":
+        batchjobs = batchjob.Slurm(pe_name=params.batch.sge_pe_name, mem_per_cpu=params.batch.mem_per_cpu)
+    elif params.batch.engine == "sge":
         batchjobs = batchjob.SGE(pe_name=params.batch.sge_pe_name)
     elif params.batch.engine == "sh":
         batchjobs = batchjob.ExecLocal(max_parallel=params.batch.sh_max_jobs)
