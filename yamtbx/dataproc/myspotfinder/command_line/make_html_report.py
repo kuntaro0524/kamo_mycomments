@@ -27,7 +27,7 @@ target_dir = None
 rotate = False
  .type = bool
  .help = backup (rotate) old files
-mode = *normal zoo
+mode = *normal zoo remake
  .type = choice
 plot = *grid circle
  .type = choice
@@ -180,7 +180,40 @@ def prepare_plot(plot_data, f, kind, wdir, rotate=False, plot_grid=True):
     return pngout, map_str
 # prepare_plot()
 
-def make_html_report(current_stats, wdir, htmlout, zoo_mode, rotate=False, plot_grid=True):
+def _maybe_make_loop_image(wdir, zoo_mode=False, remake_mode=False):
+    """
+    Create loop image for HTML.
+      - mode == "zoo"    : read ../../../before.ppm -> loop_before.jpg
+      - mode == "remake" : read ../../../raster.jpg  -> loop_raster.jpg
+    """
+    from PIL import Image
+    import os
+
+    if zoo_mode:
+        src_rel = "../../../before.ppm"
+        out_name = "loop_before.jpg"
+        label = "Loop image"
+    elif remake_mode:
+        src_rel = "../../../raster.jpg"
+        out_name = "loop_raster.jpg"
+        label = "Raster image"
+    else:
+        return ""
+
+    src = os.path.join(wdir, src_rel)
+    dst = os.path.join(wdir, out_name)
+
+    try:
+        im = Image.open(src)
+        im.save(dst)
+        return '  %s</td><td><img src="%s" /></td></tr>\n' % (label, out_name)
+    except Exception as e:
+        print("Failed to create loop/raster image:", src)
+        print(e)
+        return ""
+
+#def make_html_report(current_stats, wdir, htmlout, zoo_mode, rotate=False, plot_grid=True):
+def make_html_report(current_stats, wdir, htmlout, zoo_mode, remake_mode, rotate=False, plot_grid=True):
     #plot_data = self.plotFrame.data
     shikalog.info("Making HTML report for %s"%wdir)
     startt = time.time()
@@ -208,16 +241,15 @@ def make_html_report(current_stats, wdir, htmlout, zoo_mode, rotate=False, plot_
         if info is None: info = bl_logfiles.ScanInfo() # Empty info
         plots += '<table border=0 style="margin-bottom:0px">\n  <tr><td>\n'
 
-        if zoo_mode:
-            try:
-                im = Image.open(os.path.join(wdir, "../../../before.ppm"))
-                im.save(os.path.join(wdir, "loop_before.jpg"))
-            except:
-                import traceback
-                print("Can't convert loop image")
-                print(traceback.format_exc())
-            plots += '  Loop image</td><td><img src="loop_before.jpg" /></td></tr>\n'
-            plots += '  <tr><td>\n'
+        if zoo_mode or remake_mode:
+            loop_html = _maybe_make_loop_image(
+                wdir,
+                zoo_mode=zoo_mode, 
+                remake_mode=remake_mode
+            )
+            if loop_html: 
+                plots += loop_html
+                plots += '  <tr><td></td><td></td></tr>\n'  # spacer row
 
         plots += '  <table class="info"><tr><th>scan</th><td>%s</td></tr>\n' % scan_prefix
         plots += '    <tr><th>date</th><td>%s</td></tr>\n' % (info.date.strftime("%Y/%m/%d %H:%M:%S") if info.date!=0 else "??")
@@ -262,7 +294,7 @@ def make_html_report(current_stats, wdir, htmlout, zoo_mode, rotate=False, plot_
     con.execute('pragma query_only = ON;')
     print("Reading data from DB for making report html.")
     c = con.execute("select filename,spots from spots")
-    dbspots = dict([(str(x[0]), pickle.loads(str(x[1]))) for x in c.fetchall()])
+    dbspots = dict([(str(x[0]), pickle.loads(x[1])) for x in c.fetchall()])
     spot_data = "var spot_data = {"
     for i, (f, stat) in enumerate(result):
         if stat is None: continue
@@ -484,7 +516,8 @@ def load_results(target_dir):
     for itrial in range(60):
         try:
             c = con.execute("select filename,spots from spots")
-            results = dict([(str(x[0]), pickle.loads(str(x[1]))) for x in c.fetchall()])
+            #results = dict([(str(x[0]), pickle.loads(str(x[1]))) for x in c.fetchall()])
+            results = dict([(str(x[0]), pickle.loads(x[1])) for x in c.fetchall()])
             break
         except sqlite3.DatabaseError:
             shikalog.warning("DB failed. retrying (%d)" % itrial)
@@ -536,9 +569,24 @@ def run(params):
     target_dir = os.path.normpath(os.path.join(wdir, ".."))
     current_stats = load_results(target_dir)
 
-    zoo_mode = params.mode == "zoo"
-    htmlout = os.path.join(wdir, "report_zoo.html" if zoo_mode else "report.html")
-    make_html_report(current_stats, wdir, htmlout, zoo_mode, params.rotate, params.plot=="grid")
+    mode=params.mode
+
+    if mode=="zoo":
+        htmlout = os.path.join(wdir, "report_zoo.html")
+    elif mode=="remake":
+        htmlout = os.path.join(wdir, "report_remake.html")
+    else:
+        htmlout = os.path.join(wdir, "report.html")
+
+    make_html_report(
+        current_stats=current_stats,
+        wdir=wdir,
+        htmlout=htmlout,
+        zoo_mode=(mode == "zoo"),
+        remake_mode=(mode == "remake"),
+        rotate=params.rotate,
+        plot_grid=(params.plot == "grid"),
+    )
 # run()
 
 if __name__ == "__main__":
