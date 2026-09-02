@@ -610,7 +610,7 @@ class MainFrame(wx.Frame):
         else:
             byte = data_size // (nx*ny)
             assert byte == 4 or byte == 2
-            data = numpy.fromstring(data[8:-102], dtype=numpy.int32 if byte==4 else numpy.int16).reshape(ny,nx)
+            data = numpy.frombuffer(data[8:-102], dtype=numpy.int32 if byte==4 else numpy.int16).reshape(ny,nx)
 
             if self.last_monitor_image is not None and (data==self.last_monitor_image).all():
                 return
