@@ -120,6 +120,18 @@ XDS単独checkは終了コード0で `OK` になった。共有runtimeのactivat
 選択・変更しないため、利用時に有効なXDS moduleを別途固定する必要がある。
 この時点ではactivationへのmodule操作の埋め込みは行っていない。
 
+### 2025/07版 XDS・XSCALE の継続利用要望と実測
+
+ユーザーはXDS/XSCALEについて `xds/20250714` の利用を希望。入力なしでmodule内の
+`xds_par` と `xscale_par` を個別に起動したところ、両方とも
+`Sorry, license expired on 1-Aug-2026` を表示し、処理を開始しなかった。
+両コマンドのprocess exit codeは0だったため、終了コードだけでは利用可能と判定できない。
+
+期限回避は行っていない。2025/07版を厳密に固定するには、サイト管理者またはXDS配布元に
+正規に利用可能な同版binaryの有無・利用条件を確認する必要がある。それまでは
+`xds/20250714` を本処理可能とは扱わず、2026/06版で代替した結果を2025/07版の
+再現結果とも扱わない。
+
 ## Evidence
 
 - `evidence/20260911-kuri-shared-runtime.sbatch`
@@ -138,6 +150,7 @@ runtime `activate.sh` は
 ## 未完了事項
 
 - 有効なXDS moduleを起動手順へ固定（`xds/20260610` の単独checkは合格）
+- 希望する `xds/20250714` の正規に利用可能なbinary・運用条件を確認
 - H5ToXds不合格の解消
 - サイト側で正式利用対象と確認されたノード範囲での追加確認
 - KAMO生成ジョブが同じ絶対Python/runtimeを再現することの確認
