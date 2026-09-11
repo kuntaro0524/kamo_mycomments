@@ -28,6 +28,7 @@
 - [別環境での再開手順](startup.md)
 - [独立 runtime 構築・検証](runtime-20260911.md)
 - [クラスタ・module 環境の調査と起動設計](cluster-environment-design.md)（未実機検証）
+- [由来未確認データの試験・追加処理停止記録](smoke100-20260911.md)（baseline 不採用）
 - [installation check の保存ログ](evidence/20260911-installation.txt)
 
 各記録には対象コード commit を記載し、記録そのものの版は Git commit で管理する。

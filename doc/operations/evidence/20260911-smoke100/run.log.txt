@@ -1,0 +1,2 @@
+n_bins= 200
+KAMO sequence completed; scientific validation still required
