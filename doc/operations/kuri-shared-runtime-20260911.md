@@ -156,6 +156,20 @@ probeは `evidence/20260911-kuri-shared-launcher.sbatch`、ログは同名のnod
 対象binary、固定日時、実体checksum、wrapper、ジョブへ伝播するPATHを記録し、
 2026/06版の結果と混同しない。
 
+### 計算ノード上のH5ToXds PATH切り分け
+
+ユーザーの質問を受け、共有ランチャーをsourceした `kuri05` と `kuri-c09` で
+`command -v H5ToXds` と実行権限を確認した。両ノードとも終了コード0で、
+`/opt/xtal/xds/extra_bin/H5ToXds` を指した。したがってinstallation check不合格は
+計算ノードでPATHが通っていないことが原因ではない。
+
+`H5ToXds` は289 byteのBash wrapperで、実体として
+`eiger2cbf_applyflatfield_maskbad` を呼び、stderrを `/dev/null` へ捨てる。
+この下位コマンドも `kuri04`、`kuri05`、`kuri-c09` の全てで
+`/opt/xtal/xds/extra_bin/eiger2cbf_applyflatfield_maskbad` としてPATH上に存在した。
+未解決点は、KAMOが生成する合成HDF5をこのwrapperがCBFへ変換できない理由である。
+stderr抑止を外した隔離試験はまだ実施していない。
+
 ## Evidence
 
 - `evidence/20260911-kuri-shared-runtime.sbatch`
@@ -177,6 +191,7 @@ runtime `activate.sh` は
 - 希望する `xds/20250714` の正規に利用可能なbinary・運用条件を確認
 - 作者の案内内容を確認したうえで、2025/07版用faketime環境を別構成として検討
 - H5ToXds不合格の解消
+- H5ToXds wrapperのstderrを保存する合成データ試験で変換失敗原因を特定
 - サイト側で正式利用対象と確認されたノード範囲での追加確認
 - KAMO生成ジョブが同じ絶対Python/runtimeを再現することの確認
 - ユーザーが由来・用途・入力パスを指定した後の実データbaseline
