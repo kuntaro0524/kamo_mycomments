@@ -8,13 +8,13 @@
 | --- | --- |
 | 統合コード commit | c811f9f21a177bc97e9f21066d3585474aa880a1 |
 | 作業 branch | integration/upstream-20260911 |
-| 現在の記録 HEAD | 93db2a4（次回再開時は `git log` で確認） |
+| 現在の記録 HEAD | d98677c（共有runtime記録commit前。次回再開時は `git log` で確認） |
 | 統合前 Fork | 662864d474c87d67e351c3599e44a57debc86239 |
 | 取り込み済み本家 | b4b12bd979886e50a537e28ab78ad13050776205 |
 | 元 Fork の退避 branch | archive/fork-before-upstream-20260911 |
-| 検証ホスト | robo04 / Ubuntu 22.04.5 / x86_64 |
-| 検証環境 | DIALS 3.23.0-g7aff524e7-release / Python 3.11.11 |
-| 段階 | 統合済み、独立 runtime 登録・起動確認済み、実データ baseline 未確立 |
+| 検証ホスト | robo04 / Ubuntu 22.04.5、kuri04・kuri05・kuri-c09 / Ubuntu 24.04.4、x86_64 |
+| 検証環境 | DIALS 3.23.0-g7aff524e7-release / Python 3.11.11（robo04私有版、kuri共有版） |
+| 段階 | 統合済み、kuri共有runtime基本起動確認済み、XDS/H5ToXds不合格、実データ baseline未確立 |
 | 公開状態 | `origin/integration/upstream-20260911` へ push 済み（2026-09-11） |
 
 統合前後の commit は Git merge の両親としても保持されている。
@@ -31,6 +31,7 @@
 - [クラスタ・module 環境の調査と起動設計](cluster-environment-design.md)（未実機検証）
 - [kuri04 OS・共有パス・Slurm 初期調査](kuri04-environment-survey-20260911.md)
 - [kuri partition 代表ノード調査](kuri-node-survey-20260911.md)
+- [kuri Ubuntu 共有 DIALS/KAMO runtime 構築](kuri-shared-runtime-20260911.md)
 - [由来未確認データの試験・追加処理停止記録](smoke100-20260911.md)（baseline 不採用）
 - [次回再開用 handoff](handoff-20260911.md)
 - [GitHub push 記録](push-20260911.md)
