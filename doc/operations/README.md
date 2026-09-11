@@ -34,6 +34,7 @@
 - [kuri partition 代表ノード調査](kuri-node-survey-20260911.md)
 - [kuri Ubuntu 共有 DIALS/KAMO runtime 構築](kuri-shared-runtime-20260911.md)
 - [XDS / XSCALE 実体調査と移植方針](xds-xscale-portability-20260911.md)
+- [Kay 特殊 build の個人利用方針](xds-kay-personal-use-20260911.md)
 - [由来未確認データの試験・追加処理停止記録](smoke100-20260911.md)（baseline 不採用）
 - [次回再開用 handoff](handoff-20260911.md)
 - [GitHub push 記録](push-20260911.md)

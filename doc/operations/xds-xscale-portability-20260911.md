@@ -42,6 +42,11 @@ library は確認できない。xscale_par は libubsan と libstdc++ も参照�
 
 ## 移植できる範囲と制約
 
+ユーザー判断として、Kay 氏の特殊 build は個人管理の共有領域へ置き、本人の解析で使う
+運用は妥当とする。ただし計算ノードから見える `/staff/Common/kuntaro/kamodev/` は
+一般配布用の Git repository ではない。利用条件を確認したうえで binary を専用 directory
+に置き、Git には入れない。実行中に更新せず、version・build 表示・checksum・PATH を記録する。
+
 binary の起動メッセージに作者の `No redistribution.` が含まれる。したがって、
 この repository や `/staff/Common/kuntaro/kamodev/` へ binary をコピーして配布することはしない。
 移植は「Kay 氏または配布元が認めた方法で同じ特殊 build を取得し、checksum と
