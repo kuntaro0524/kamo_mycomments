@@ -15,7 +15,7 @@
 | 検証ホスト | robo04 / Ubuntu 22.04.5 / x86_64 |
 | 検証環境 | DIALS 3.23.0-g7aff524e7-release / Python 3.11.11 |
 | 段階 | 統合済み、独立 runtime 登録・起動確認済み、実データ baseline 未確立 |
-| 公開状態 | 2026-09-11 の本記録作成時点でローカルのみ。push 未実施 |
+| 公開状態 | `origin/integration/upstream-20260911` へ push 済み（2026-09-11） |
 
 統合前後の commit は Git merge の両親としても保持されている。
 将来この表を更新しても、その時点の値は Git 履歴に残る。
@@ -31,6 +31,7 @@
 - [クラスタ・module 環境の調査と起動設計](cluster-environment-design.md)（未実機検証）
 - [由来未確認データの試験・追加処理停止記録](smoke100-20260911.md)（baseline 不採用）
 - [次回再開用 handoff](handoff-20260911.md)
+- [GitHub push 記録](push-20260911.md)
 - [installation check の保存ログ](evidence/20260911-installation.txt)
 
 各記録には対象コード commit を記載し、記録そのものの版は Git commit で管理する。
