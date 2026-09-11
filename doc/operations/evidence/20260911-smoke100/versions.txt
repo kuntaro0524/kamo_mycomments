@@ -1,0 +1,5 @@
+DIALS 3.23.0-g7aff524e7-release
+Python 3.11.11
+Installed in: /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dials/src/dials
+/oys/xtal/ccp4/ccp4-9/bin/pointless
+/oys/xtal/ccp4/ccp4-9/bin/aimless

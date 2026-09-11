@@ -262,14 +262,14 @@ def make_html_report(current_stats, wdir, htmlout, zoo_mode, rotate=False, plot_
     con.execute('pragma query_only = ON;')
     print("Reading data from DB for making report html.")
     c = con.execute("select filename,spots from spots")
-    dbspots = dict([(str(x[0]), pickle.loads(str(x[1]))) for x in c.fetchall()])
+    dbspots = dict([(str(x[0]), pickle.loads(x[1])) for x in c.fetchall()])
     spot_data = "var spot_data = {"
     for i, (f, stat) in enumerate(result):
         if stat is None: continue
         bf = os.path.basename(f)
         spots = dbspots[bf]["spots"]
         thumb_posmag = dbspots[bf]["thumb_posmag"]
-        r = re.search("^(.*)_([0-9]+)\.[^0-9]+$", bf)
+        r = re.search(r"^(.*)_([0-9]+)\.[^0-9]+$", bf)
         prefix, num = r.group(1), int(r.group(2))
         spot_data += '"%s":[[' % bf
         for y,x,snr,d in spots:
@@ -292,7 +292,7 @@ def make_html_report(current_stats, wdir, htmlout, zoo_mode, rotate=False, plot_
     flag_tiled_jpg = False
     if glob.glob(os.path.join(wdir, "thumb_*")):
         for res in result:
-            r = re.search("^(.*)_([0-9]+)\.[^0-9]+$", os.path.basename(res[0]))
+            r = re.search(r"^(.*)_([0-9]+)\.[^0-9]+$", os.path.basename(res[0]))
             prefix, num = r.group(1), int(r.group(2))
             jd = os.path.join("thumb_%s_%.3d" % (prefix, num//1000))
             if not os.path.exists(jd): flag_tiled_jpg = True  # THIS MAY CAUSE A PROBLEM..
@@ -484,7 +484,7 @@ def load_results(target_dir):
     for itrial in range(60):
         try:
             c = con.execute("select filename,spots from spots")
-            results = dict([(str(x[0]), pickle.loads(str(x[1]))) for x in c.fetchall()])
+            results = dict([(str(x[0]), pickle.loads(x[1])) for x in c.fetchall()])
             break
         except sqlite3.DatabaseError:
             shikalog.warning("DB failed. retrying (%d)" % itrial)
@@ -498,7 +498,7 @@ def load_results(target_dir):
             stat = Stat()
             # extension should be always .img in shika.db if generated from EIGER stream
             possible_imgfs = (imgf, os.path.splitext(imgf)[0] + ".img",
-                              re.sub("(.*)_0([0-9]{6})\..*$", r"\1_\2.img", imgf), # too dirty fix!! for new bss which writes 7-digits filename..
+                              re.sub(r"(.*)_0([0-9]{6})\..*$", r"\1_\2.img", imgf), # too dirty fix!! for new bss which writes 7-digits filename..
                               )
             imgfs_found = [x for x in possible_imgfs if x in results]
             if not imgfs_found: continue

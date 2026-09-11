@@ -64,7 +64,7 @@ def import_geometry(xds_inp=None, dials_json=None):
 # import_geometry()
 
 def read_geometry_using_dxtbx(img_file):
-    import dxtbx.datablock
+    from dxtbx.model.experiment_list import ExperimentListFactory
     import dxtbx.serialize.xds
 
     geom_kwds = set(["DIRECTION_OF_DETECTOR_X-AXIS", "DIRECTION_OF_DETECTOR_Y-AXIS",
@@ -76,8 +76,8 @@ def read_geometry_using_dxtbx(img_file):
                      "DIRECTION_OF_SEGMENT_Y-AXIS", "SEGMENT_DISTANCE",
                      "SEGMENT_ORGX", "SEGMENT_ORGY"])
 
-    datablocks = dxtbx.datablock.DataBlockFactory.from_filenames([img_file])
-    to_xds = dxtbx.serialize.xds.to_xds(datablocks[0].extract_sweeps()[0])
+    experiments = ExperimentListFactory.from_filenames([img_file])
+    to_xds = dxtbx.serialize.xds.to_xds(experiments[0].imageset)
     inp = get_xdsinp_keyword(inp_str=to_xds.XDS_INP())
     inp = [x for x in inp if x[0] in geom_kwds]
     return to_xds, [" %s= %s"%x for x in inp]
@@ -90,7 +90,8 @@ def generate_xds_inp(img_files, inp_dir, use_dxtbx=False, anomalous=True,
                      osc_range=None, orgx=None, orgy=None, rotation_axis=None, distance=None,
                      wavelength=None,
                      minpk=None, exclude_resolution_range=None,
-                     fstart=None, fend=None, extra_kwds=None, overrides=None, fix_geometry_when_overridden=False):
+                     fstart=None, fend=None, extra_kwds=None, overrides=None, fix_geometry_when_overridden=False,
+                     lib=None):
     """
     Reference: http://strucbio.biologie.uni-konstanz.de/xdswiki/index.php/Generate_XDS.INP
     """
@@ -136,7 +137,6 @@ def generate_xds_inp(img_files, inp_dir, use_dxtbx=False, anomalous=True,
 
     friedel = "FALSE" if anomalous else "TRUE"
     is_pilatus_or_eiger = False
-
     img_files_existed = [x for x in img_files if os.path.isfile(x)]
     if not img_files_existed: raise Exception("No actual images found.")
 
@@ -229,6 +229,7 @@ PILATUS 2M, S/N 24-0109
             detector = "EIGER MINIMUM_VALID_PIXEL_VALUE=0 OVERLOAD= %d" % im.header["Overload"]
             sensor_thickness = im.header["SensorThickness"]
             is_pilatus_or_eiger = True
+            is_eiger = True
 
         inp_str += """\
  ORGX= %(orgx).2f ORGY= %(orgy).2f
@@ -245,24 +246,28 @@ PILATUS 2M, S/N 24-0109
 """ % locals()
 
         # XXX Synchrotron can have R-AXIS, and In-house detecotr can have horizontal goniometer!
+        if "DetAxisX" in im.header and "DetAxisY" in im.header:
+            detector_x = im.header["DetAxisX"]
+            detector_y = im.header["DetAxisY"]
+        elif im.header["ImageType"] == "raxis":
+            detector_x = (1, 0, 0)
+            detector_y = (0, -1, 0)
+        elif im.header["ImageType"] == "mscccd":
+            detector_x = (-1, 0, 0)
+            detector_y = (0, 1, 0)
+        else:
+            detector_x = (1, 0, 0)
+            detector_y = (0, 1, 0)
+        inp_str += """\
+ DIRECTION_OF_DETECTOR_X-AXIS= %.4f %.4f %.4f
+ DIRECTION_OF_DETECTOR_Y-AXIS= %.4f %.4f %.4f
+""" % (detector_x + detector_y)
+
         if im.header["ImageType"] == "raxis":
             inp_str += """\
- DIRECTION_OF_DETECTOR_X-AXIS= 1 0 0
- DIRECTION_OF_DETECTOR_Y-AXIS= 0 -1 0
  INCIDENT_BEAM_DIRECTION= 0 0 1
 !FRACTION_OF_POLARIZATION= 0.98   ! uncomment if synchrotron
  POLARIZATION_PLANE_NORMAL= 1 0 0
-"""
-        else:
-            if im.header["ImageType"] == "mscccd":
-                inp_str += """\
- DIRECTION_OF_DETECTOR_X-AXIS= -1 0 0
- DIRECTION_OF_DETECTOR_Y-AXIS=  0 1 0
-"""
-            else:
-                inp_str += """\
- DIRECTION_OF_DETECTOR_X-AXIS= 1 0 0
- DIRECTION_OF_DETECTOR_Y-AXIS= 0 1 0
 """
 
     if integrate_nimages is None:
@@ -286,13 +291,16 @@ PILATUS 2M, S/N 24-0109
 
  TRUSTED_REGION=0.00 1.4
  VALUE_RANGE_FOR_TRUSTED_DETECTOR_PIXELS=6000. 30000.
- STRONG_PIXEL=4
  MINIMUM_NUMBER_OF_PIXELS_IN_A_SPOT=3
  REFINE(IDXREF)=CELL BEAM ORIENTATION AXIS ! DISTANCE POSITION
  REFINE(INTEGRATE)= DISTANCE POSITION BEAM ORIENTATION ! AXIS CELL
 !REFINE(CORRECT)=CELL BEAM ORIENTATION AXIS DISTANCE POSITION
 """ % dict(sgnum=sgnum, cell=cell_str)
 
+    if is_eiger_hdf5 and os.path.exists("/usr/local/lib64/dectris-neggia.so"):
+        inp_str += """\
+ LIB=/usr/local/lib64/dectris-neggia.so
+"""
     if is_pilatus_or_eiger:
         inp_str += """\
  SEPMIN=4 CLUSTER_RADIUS=2
@@ -350,4 +358,6 @@ PILATUS 2M, S/N 24-0109
             inp_str += " REFINE(IDXREF)= CELL ORIENTATION ! BEAM AXIS DISTANCE POSITION\n"
             inp_str += " REFINE(INTEGRATE)= CELL ORIENTATION ! DISTANCE POSITION BEAM AXIS\n"
 
+    if lib:
+        inp_str += " LIB= %s\n" % lib
     return inp_str

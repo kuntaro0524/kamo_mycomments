@@ -36,7 +36,6 @@ from cctbx.crystal import reindex
 
 import wx
 #import wx.gizmos
-from wx.lib.mixins.listctrl import CheckListCtrlMixin, ListCtrlAutoWidthMixin
 import wx.html
 import wx.lib.newevent
 import wx.lib.agw.pybusyinfo
@@ -54,7 +53,7 @@ import pickle
 import glob
 import threading
 import traceback
-import pipes
+import shlex
 import copy
 
 EventShowProcResult, EVT_SHOW_PROC_RESULT = wx.lib.newevent.NewEvent()
@@ -133,7 +132,7 @@ small_wedges = true
  .help = Optimized for small wedge data processing
 
 batch {
- engine = *sge sh
+ engine = sge pbs slurm sh *auto
   .type = choice(multi=False)
  sge_pe_name = par
   .type = str
@@ -144,6 +143,9 @@ batch {
  sh_max_jobs = Auto
   .type = int
   .help = maximum number of concurrent jobs when engine=sh
+ mem_per_cpu = default
+  .type = str
+  .help = mem_per_cpu (slurm --mem option)
 }
 
 use_tmpdir_if_available = true
@@ -212,6 +214,9 @@ xds {
    .type = floats(size=3)
    .help = "override ROTATION_AXIS= "
  }
+ lib = None
+  .type = path
+  .help = "LIB= for XDS.INP"
 }
 
 dials {
@@ -239,6 +244,9 @@ split_data_by_deg = None
 log_root = None
  .type = path
  .help = debug log directory
+auto_close = *no nogui gui
+ .type = choice(multi=False)
+ .help = auto close
 """
 
 def read_override_config(imgdir):
@@ -268,6 +276,20 @@ def read_override_config(imgdir):
     mylog.info("Read override-config from %s: %s" % (cfgin, ret))
     return ret
 # read_override_config()
+
+# modified wx scroll panel error on wx version 4.1.1
+if wx.__version__ == "4.1.1":
+    OrgScrollChildIntoView = wx.lib.scrolledpanel.ScrolledPanel.ScrollChildIntoView
+    def ModScrollChildIntoView(self, child):
+        orgScroll = self.Scroll
+        def ModScroll(new_x, new_y):
+            orgScroll(int(new_x), int(new_y))
+            self.Scroll = orgScroll
+        self.Scroll = ModScroll
+        OrgScrollChildIntoView(self,child)
+        self.Scroll = orgScroll
+    wx.lib.scrolledpanel.ScrolledPanel.ScrollChildIntoView = ModScrollChildIntoView
+
 
 class BssJobs(object):
     def __init__(self):
@@ -308,9 +330,9 @@ class BssJobs(object):
                             os.path.relpath(key[0]+"_%d-%d"%key[1], config.params.topdir))
 
     def check_bss_log(self, date, daystart):
-        re_job_start = re.compile("Job ID ([0-9]+) start")
-        re_job_finish = re.compile("Job ID ([0-9]+) (Stopped|Success|Killed)")
-        re_prefix = re.compile("^(.*)_[x\?]+") # XXX Is this safe?
+        re_job_start = re.compile(r"Job ID ([0-9]+) start")
+        re_job_finish = re.compile(r"Job ID ([0-9]+) (Stopped|Success|Killed)")
+        re_prefix = re.compile(r"^(.*)_[x\?]+") # XXX Is this safe?
 
         self._prev_job_finished = False
 
@@ -650,7 +672,8 @@ class BssJobs(object):
                                               fstart=nr[0], fend=nr[1],
                                               extra_kwds=config.params.xds.ex,
                                               overrides=self.xds_inp_overrides,
-                                              fix_geometry_when_overridden=config.params.xds.override.fix_geometry_when_reference_provided)
+                                              fix_geometry_when_overridden=config.params.xds.override.fix_geometry_when_reference_provided,
+                                              lib=config.params.xds.lib)
         open(os.path.join(workdir, "XDS.INP"), "w").write(xdsinp_str)
 
         opts = ["multiproc=false", "topdir=.", "nproc=%d"%config.params.batch.nproc_each, "tryhard=true",
@@ -927,6 +950,7 @@ class WatchLogThread(object):
     def run(self):
         mylog.info("WatchLogThread loop STARTED")
         counter = 0
+        lastloop = False
         while self.keep_going:
             counter += 1
             if config.params.date == "today": date = datetime.datetime.today()
@@ -966,7 +990,8 @@ class WatchLogThread(object):
                             mylog.info("Waiting for files: %s" % str(key))
 
             ev = EventLogsUpdated(job_statuses=job_statuses)
-            wx.PostEvent(self.parent, ev)
+            if self.parent:
+                wx.PostEvent(self.parent, ev)
 
             for key in job_statuses:
                 if job_statuses[key][0] == "finished":
@@ -990,22 +1015,36 @@ class WatchLogThread(object):
                 for i in range(int(self.interval/.5)):
                     if self.keep_going:
                         time.sleep(.5)
-
+            #auto close
+            if config.params.auto_close != "no":
+                finished = 0
+                for key in bssjobs.keys():
+                    job_statuses[key] = bssjobs.get_process_status(key)
+                    status = job_statuses[key][0]
+                    if status == "finished" or status == "giveup":
+                        finished += 1
+                if len(bssjobs.keys()) == finished:
+                    # close to kamo
+                    if not lastloop:
+                        lastloop = True
+                        continue
+                    self.keep_going = False
+                    html_report.make_kamo_report(bssjobs,
+                        topdir=config.params.topdir,
+                        htmlout=os.path.join(config.params.workdir, "report.html"))
+                    if self.parent:
+                        #wx.PostEvent(self.parent, wx.EVT_CLOSE)
+                        self.parent.Close(True)
+                        wx.PostEvent(self.parent, ev)
         mylog.info("WatchLogThread loop FINISHED")
         self.running = False
         #wx.PostEvent(self.parent, EventDirWatcherStopped()) # Ensure the checkbox unchecked when accidentally exited.
     # run()
 # class WatchLogThread
 
-class MyCheckListCtrl(wx.ListCtrl, CheckListCtrlMixin, ListCtrlAutoWidthMixin):
-    """
-    http://zetcode.com/wxpython/advanced/
-    """
+class MyCheckListCtrl(wx.ListCtrl):
     def __init__(self, parent):
         wx.ListCtrl.__init__(self, parent, wx.ID_ANY, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_VIRTUAL)
-        CheckListCtrlMixin.__init__(self)
-        ListCtrlAutoWidthMixin.__init__(self)
-        
         self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
         self.InsertColumn(0, "Path", wx.LIST_FORMAT_LEFT, width=400) # with checkbox
         self.InsertColumn(1, "Sample ID", wx.LIST_FORMAT_LEFT, width=90)
@@ -1023,18 +1062,32 @@ class MyCheckListCtrl(wx.ListCtrl, CheckListCtrlMixin, ListCtrlAutoWidthMixin):
         self._items_lookup = {} # {key: idx in self.items}
         self._sort_acend = True
         self._sort_prevcol = None
+        self._last_checked = (-1, None)
 
+        self.Bind(wx.EVT_LIST_ITEM_CHECKED, lambda ev: self.item_checked(ev.GetIndex(), 1))
+        self.Bind(wx.EVT_LIST_ITEM_UNCHECKED, lambda ev: self.item_checked(ev.GetIndex(), 0))
         self.Bind(wx.EVT_LIST_COL_CLICK, self.item_col_click)
+        self.EnableCheckBoxes()
     # __init__()
 
     def key_at(self, line): return self.items[line][0]
     def OnGetItemText(self, line, col): return self.items[line][col+2] # [0] has key, [1] has checked state
-    def OnGetItemImage(self, line): return self.items[line][1]
+    def OnGetItemIsChecked(self, line): return self.items[line][1]
+    def item_checked(self, index, checked):
+        assert checked in (0, 1)
+        self.items[index][1] = checked
+        last_index, last_flag = self._last_checked
+        if wx.GetKeyState(wx.WXK_SHIFT) and 0 <= last_index < len(self.items) and last_flag == checked:
+            if index < last_index:
+                rr = range(index+1, last_index+1)
+            else:
+                rr = range(last_index, index)
+            for i in rr:
+                self.items[i][1] = checked
+                self.RefreshItem(i) # apparently needed for non-clicked items
 
-    def SetItemImage(self, line, im): # checked state
-        self.items[line][1] = im
-        self.Refresh()
-    # SetItemImage()
+        self._last_checked = (index, checked)
+    # item_checked()
 
     def get_item(self, key):
         if key not in self._items_lookup: return None
@@ -1358,17 +1411,22 @@ class ControlPanel(wx.Panel):
     # listctrl_item_selected()
 
     def btnCheckAll_click(self, ev):
-        for i in range(self.listctrl.GetItemCount()):
-            if self.listctrl.GetItem(i).GetImage() == 0: self.listctrl.SetItemImage(i, 1)
+        for i, item in enumerate(self.listctrl.items):
+            if item[1] == 0:
+                item[1] = 1
+                self.listctrl.RefreshItem(i)
     # btnCheckAll_click()
 
     def btnUncheckAll_click(self, ev):
-        for i in range(self.listctrl.GetItemCount()):
-            if self.listctrl.GetItem(i).GetImage() == 1: self.listctrl.SetItemImage(i, 0)
+        for i, item in enumerate(self.listctrl.items):
+            if item[1] == 1:
+                item[1] = 0
+                self.listctrl.RefreshItem(i)
     # btnUncheckAll_click()
 
     def btnMultiMerge_click(self, ev):
-        keys = [self.listctrl.key_at(i) for i in [i for i in range(self.listctrl.GetItemCount()) if self.listctrl.GetItem(i).GetImage() == 1]]
+        # XXX should use self.listctrl.key_at(i) instead of item[0]
+        keys = [item[0] for item in self.listctrl.items if item[1] == 1]
         keys = [k for k in keys if bssjobs.get_process_status(k)[0]=="finished"]
         mylog.info("%d finished jobs selected for merging" % len(keys))
 
@@ -1596,8 +1654,7 @@ class ResultLeftPanel(wx.Panel):
 
 class PlotPanel(wx.lib.scrolledpanel.ScrolledPanel): # Why this needs to be ScrolledPanel?? (On Mac, Panel is OK, but not works on Linux..)
     def __init__(self, parent=None, id=wx.ID_ANY, nplots=4):
-        wx.lib.scrolledpanel.ScrolledPanel.__init__(self, parent=parent, id=id, size=(400,1200))
-
+        wx.lib.scrolledpanel.ScrolledPanel.__init__(self, parent=parent, id=id, size=(400, 1200))
         vbox = wx.BoxSizer(wx.VERTICAL)
         self.SetSizer(vbox)
         self.figure = matplotlib.figure.Figure(tight_layout=True)
@@ -1607,7 +1664,6 @@ class PlotPanel(wx.lib.scrolledpanel.ScrolledPanel): # Why this needs to be Scro
         
         self.canvas = matplotlib.backends.backend_wxagg.FigureCanvasWxAgg(self, wx.ID_ANY, self.figure)
         vbox.Add(self.canvas, 1, flag=wx.ALL|wx.EXPAND)
-    # __init__
 
     """
     def _SetSize(self):
@@ -1665,7 +1721,6 @@ class ResultRightPanel(wx.Panel):
 
         self.notebook = wx.Notebook(self, id=wx.ID_ANY, style=wx.BK_DEFAULT)
         vbox.Add(self.notebook, 1, wx.ALL|wx.EXPAND, 5)
-
         self.plotsPanel = wx.lib.scrolledpanel.ScrolledPanel(self.notebook)
         self.plotsPanel.SetupScrolling()
         self.logPanel = wx.Panel(self.notebook)
@@ -1821,7 +1876,6 @@ class MainFrame(wx.Frame):
         self.Bind(EVT_LOGS_UPDATED, self.ctrlPanel.on_update)
         if config.params.jobspkl is not None: config.params.logwatch_once = True
         self.watch_log_thread.start(config.params.logwatch_interval)
-
         self.Show()
     # __init__()
 
@@ -1890,7 +1944,7 @@ This is an alpha-version. If you found something wrong, please let staff know! W
         print("ERROR: bl= is needed.")
         return
 
-    app = wx.App()
+    #app = wx.App()
 
     from yamtbx.command_line import kamo_test_installation
     if config.params.engine == "xds" and not kamo_test_installation.tst_xds():
@@ -1965,18 +2019,31 @@ This is an alpha-version. If you found something wrong, please let staff know! W
     savephilpath = os.path.join(config.params.workdir, time.strftime("gui_params_%y%m%d-%H%M%S.txt"))
     with open(savephilpath, "w") as ofs:
         ofs.write("# Command-line args:\n")
-        ofs.write("# kamo %s\n\n" % " ".join([pipes.quote(x) for x in argv]))
+        ofs.write("# kamo %s\n\n" % " ".join([shlex.quote(x) for x in argv]))
         libtbx.phil.parse(gui_phil_str).format(config.params).show(out=ofs,
                                                                    prefix="")
     mylog.info("GUI parameters were saved as %s" % savephilpath)
 
-    if config.params.batch.engine == "sge":
+    if config.params.batch.engine == "auto" or str(config.params.batch.engine) == "Auto":
+        try:
+            batchjobs = batchjob.AutoJobManager(pe_name=config.params.batch.sge_pe_name, mem_per_cpu=config.params.batch.mem_per_cpu)
+        except batchjob.SlurmError as e:
+            mylog.error(str(e))
+    elif config.params.batch.engine == "sge":
         try:
             batchjobs = batchjob.SGE(pe_name=config.params.batch.sge_pe_name)
         except batchjob.SgeError as e:
             mylog.error(str(e))
             mylog.error("SGE not configured. If you want to run KAMO on your local computer only (not to use queueing system), please specify batch.engine=sh")
             return
+    elif config.params.batch.engine == "slurm":
+        try:
+            batchjobs = batchjob.Slurm(pe_name=config.params.batch.sge_pe_name, mem_per_cpu=config.params.batch.mem_per_cpu)
+        except batchjob.SlurmError as e:
+            mylog.error(str(e))
+            mylog.error("Slurm not configured. If you want to run KAMO on your local computer only (not to use queueing system), please specify batch.engine=sh")
+            return
+
     elif config.params.batch.engine == "sh":
         if config.params.batch.sh_max_jobs == libtbx.Auto:
             nproc_all = libtbx.easy_mp.get_processes(None)
@@ -2012,9 +2079,38 @@ This is an alpha-version. If you found something wrong, please let staff know! W
     if config.params.xds.override.geometry_reference:
         bssjobs.load_override_geometry(config.params.xds.override.geometry_reference)
 
-    mainFrame = MainFrame(parent=None, id=wx.ID_ANY)
-    app.TopWindow = mainFrame
-    app.MainLoop()
+    if config.params.auto_close == "nogui":
+        print("NoGui mode. ")
+        watchlog = WatchLogThread(None)
+        watchlog.start(10)
+        while watchlog.is_running():
+            time.sleep(10)
+        # watchlog.start(10)
+        # while watchlog.is_running():
+        #     if len(bssjobs.jobs) > 0:
+        #         finished = 0
+        #         for key in bssjobs.keys():
+        #             job_status = bssjobs.get_process_status(key)
+        #             status = job_status[0]
+        #             #job = bssjobs.get_job(key)
+        #             if status == "finished":
+        #                 finished += 1
+        #         if finished == len(bssjobs.keys()):
+        #             print("All jobs are finished")
+        #             watchlog.keep_going = False
+        #             break
+        #         else:
+        #             #print("\r{}/{}".format(finished,len(bssjobs.keys())))
+        #             time.sleep(1)
+        #     else:
+        #         print("job is not found.")
+        #         time.sleep(1)
+    else:
+
+        app = wx.App()
+        mainFrame = MainFrame(parent=None, id=wx.ID_ANY)
+        app.TopWindow = mainFrame
+        app.MainLoop()
 
     mylog.info("Normal exit.")
 

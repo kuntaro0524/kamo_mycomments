@@ -6,6 +6,8 @@ For installation, please read [INSTALL.md](INSTALL.md).
 
 ### Documents
 
+* Fork 運用・バージョン記録 / 別環境での再開: [作業記録の入口](doc/operations/README.md)
+
 * KAMO (Automatic data processing) [Japanese](doc/kamo-ja.md) [English](doc/kamo-en.md)
 * SHIKA (Spotfinder with GUI) [Japanese](doc/shika-ja.md) [English](doc/shika-en.md)
 * EIGER data at SPring-8 BL32XU [Japanese](doc/eiger-ja.md) [English](doc/eiger-en.md)
