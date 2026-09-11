@@ -1,6 +1,7 @@
 # 別環境での再開手順
 
-これは統合版の調査・基本チェックを再開する手順。独立した KAMO 本番インストール手順は未確立。
+これは統合版の独立検証環境を再構築する手順。robo04 で構築・起動確認済み。
+実データ baseline は未確立のため、本番検証済みの環境とは扱わない。
 
 ## ソース取得と版確認
 
@@ -44,7 +45,48 @@ command -v adxv
 robo04 の XDS は faketime wrapper 経由だった。別環境でその設定を自動的に再現せず、
 実体 version と利用可否を調査する。ホスト固有パスは初期調査記録を参照。
 
-## 基本チェックの再実行
+## 独立した DIALS / KAMO 環境の作成
+
+コピー元として利用可能な DIALS binary installation を用意する。
+robo04 では 3.23.0 の modules / build / conda_base を含む約3.5 GBをコピーした。
+以下の変数は実環境に合わせる。出力先は未使用のディレクトリとする。
+
+```bash
+KAMO_DIALS_SOURCE="<existing-DIALS-installation>"
+KAMO_RUNTIME="<new-private-runtime-directory>"
+KAMO_CHECKOUT="<absolute-path-to-this-checkout>"
+test ! -e "$KAMO_RUNTIME" || exit 1
+cp -a "$KAMO_DIALS_SOURCE" "$KAMO_RUNTIME"
+python3 "$KAMO_CHECKOUT/doc/operations/configure-local-runtime.py" \
+  --runtime "$KAMO_RUNTIME" --checkout "$KAMO_CHECKOUT"
+source "$KAMO_RUNTIME/activate.sh"
+command -v kamo
+dials.version
+kamo --help
+dials.python -B - <<'PY'
+import os, sys, yamtbx
+from yamtbx import util
+print('Python:', sys.executable)
+print('KAMO:', os.path.realpath(yamtbx.__file__))
+print('Resources:', os.path.realpath(util.yamtbx_module_root()))
+PY
+```
+
+configure helper には必ず私有コピーを指定する。既存環境を上書きしない。
+コピー内の元 yamtbx は original-yamtbx に退避し、modules/yamtbx を対象 checkout にリンクする。
+libtbx.configure はコピー内の Python / libtbx 環境で dispatcher を再生成する。
+DIALS と xia2 の editable 登録もコピー内で更新されるが、C++ の再ビルドは行わない。
+元環境の絶対パスが残り得る dispatcher include の DIALS 設定も更新する。
+
+activate.sh / dials_env.sh はこの環境向けの Bash 用ファイル。
+csh 用の起動ファイルは本手順では更新・検証していない。
+checkout は開発用リンクなので branch 切替やソース変更が直ちに反映される。
+解析前に commit と dirty state を記録し、固定版での解析には専用 checkout を用いる。
+このコピー手順の検証範囲は上記 DIALS binary layout に限る。
+
+robo04 の構築記録: [独立 runtime](runtime-20260911.md)。
+
+## 旧来の import のみの基本チェック（参考）
 
 リポジトリのルートで実行する。これにより Python import をこの checkout に向ける。
 既存 libtbx の resource 登録や dispatcher を切り替える操作ではない。
@@ -66,9 +108,10 @@ resource-location check は旧インストールを参照したため、それ�
 
 ## 次に行う作業
 
-1. 必要な外部依存を確認・有効化し、不合格項目を解消する。
-2. 共有稼働環境とは別の構成で、この checkout の libtbx 登録・dispatcher を整える。
-3. 初期調査記録のデータ候補を確認し、入力 checksum と全パラメータを保存する。
-4. 小規模処理、実データ処理、同条件再実行を行い、科学的 baseline を確立する。
+1. 初期調査記録のデータ候補を確認し、入力 checksum と全パラメータを保存する。
+2. 小規模処理、実データ処理、同条件再実行を行い、科学的 baseline を確立する。
+
+2026-09-11、ユーザーの判断により R / XDSSTAT / ADXV の不合格解消を前提とせず進める。
+これは各項目の合格を意味しない。実処理が必要な依存で失敗した場合はその時点で調査する。
 
 別ホストに入力データがあるとは仮定しない。未解決事項は統合記録を参照する。
