@@ -237,7 +237,7 @@ class CCClustering(object):
         ofs.write("   i    j      cc  nref\n")
         for (i,j), (cc,nref) in zip(args, results):
             # resultsにあったデータをすべて出力する
-            ofs.write("%4d %4d %12.7f %4d\n" % (i,j,cc,nref))
+            ofs.write("%4d %4d %13.11f %4d\n" % (i,j,cc,nref))
             self.all_cc[(i,j)] = cc
             if i not in remove_idxes and j not in remove_idxes:
                 mat[org2now[j], org2now[i]] = cc_to_distance(min(cc, 1.)) #numpy.sqrt(1.-min(cc, 1.)) # safety guard (once I encounterd..

@@ -17,7 +17,7 @@ def load_cbf_as_numpy(filein, quiet=True):
     h = pycbf.cbf_handle_struct()
     h.read_file(filein.encode("utf-8"), pycbf.MSG_DIGEST)
     ndimfast, ndimslow = h.get_image_size_fs(0)
-    arr = numpy.fromstring(h.get_image_fs_as_string(0, 4, 1, ndimfast, ndimslow), dtype=numpy.int32)
+    arr = numpy.frombuffer(h.get_image_fs_as_string(0, 4, 1, ndimfast, ndimslow), dtype=numpy.int32)
     return arr, ndimfast, ndimslow
 # load_cbf_as_numpy()
 
@@ -33,7 +33,7 @@ def load_minicbf_as_numpy(filein, quiet=True): # This can also read XDS special 
     assert elsize == 4 or elsize == 8
     assert elsigned == 1
     assert ndimslow <= 1
-    arr = numpy.fromstring(h.get_integerarray_as_string(), dtype=numpy.int32 if elsize==4 else numpy.int64)
+    arr = numpy.frombuffer(h.get_integerarray_as_string(), dtype=numpy.int32 if elsize==4 else numpy.int64)
     return arr, ndimfast, ndimmid
 
 # load_minicbf_as_numpy()

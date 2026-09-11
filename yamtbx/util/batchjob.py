@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 
 import os, subprocess, re, threading, time, stat
 import shlex
+import shutil
 
 # JobState
 #  0: previous job is not finished.
@@ -153,7 +154,17 @@ class SGE(JobManager):
                 qstat_found = True
 
         if not( qsub_found and qstat_found ):
-            raise SgeError("cannot find qsub or qstat command under $PATH")
+            if shutil.which("sbatch") and shutil.which("scancel") and shutil.which("squeue"):
+                print("cannot find sge engine but detected slurm engine. use slurm engine instead of sge.")
+                self.Slurm = Slurm(pe_name=self.pe_name)
+                self.qstat = self.Slurm.qstat
+                self.submit = self.Slurm.submit
+                self.update_state = self.Slurm.update_state
+                self.qstat = self.Slurm.qstat
+                self.stop_all = self.Slurm.stop_all
+                self.qdel = self.Slurm.qdel
+            else:
+                raise SgeError("cannot find qsub or qstat command under $PATH")
                 
         self.job_id = {} # [Job: jobid]
     # __init__()
@@ -237,7 +248,7 @@ class SGE(JobManager):
     def qdel(self, job_id):
         cmd = "qdel %s" % job_id
         p = subprocess.Popen(cmd, shell=True,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                             stdout=subprocess.PIPE, universal_newlines=True)
         p.wait()
         stdout = p.stdout.readlines()
 
@@ -252,11 +263,12 @@ class SGE(JobManager):
 # class SGE
 
 class Slurm(JobManager):
-    def __init__(self):
+    def __init__(self, pe_name="default",mem_per_cpu="default"):
         JobManager.__init__(self)
-
+        self.pe_name = pe_name
+        self.mem_per_cpu = mem_per_cpu
         sbatch_found, squeue_found = False, False
-        
+
         for d in os.environ["PATH"].split(":"):
             if os.path.isfile(os.path.join(d, "sbatch")):
                 sbatch_found = True
@@ -276,8 +288,13 @@ class Slurm(JobManager):
 
         script_name = j.script_name
         wdir = j.wdir
-
-        cmd = "sbatch -c %d %s" % (j.nproc, script_name)
+        partition = ""
+        memory = ""
+        if self.pe_name != "default" and self.pe_name != "par":
+            partition = f"-p {self.pe_name}"
+        if self.mem_per_cpu != "default":
+            memory = f"--mem-per-cpu={self.mem_per_cpu}"
+        cmd = "sbatch %s %s -c %d %s" % (partition, memory, j.nproc, script_name)
 
         p = subprocess.Popen(cmd, shell=True, cwd=wdir, 
                              stdout=subprocess.PIPE, universal_newlines=True)
@@ -295,6 +312,9 @@ class Slurm(JobManager):
         
         self.job_id[j] = job_id
         print("Job %s on %s is started. id=%s"%(j.script_name, j.wdir, job_id))
+        self.submit_time = time.time()
+        self.registered_job = False
+
 
     # submit()
 
@@ -314,28 +334,48 @@ class Slurm(JobManager):
     # update_state()
 
     def qstat(self, job_id):
-        cmd = "squeue --job %s" % job_id
-        p = subprocess.Popen(cmd, shell=True,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        p.wait()
-        stdout = p.stdout.read()
-
-        if p.returncode != 0:
-            raise SlurmError("squeue failed. returncode is %d.\nstdout:\n%s\n"%(p.returncode,
-                                                                              stdout))
-        """
-        example:
-             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
-            944900       cpu  junk.sh kyamashi PD       0:00      1 (Priority)
-        """
-
-        status = {}
-
-        if job_id not in stdout:
-            print("job %s finished (squeue showed nothing)." % job_id)
-            return None
+        # for the problem that jobs are not displayed if squeue before the database is updated.
+        if shutil.which("sacct"):
+            cmd = "sacct --job %s -n --format=STATE" % job_id
+            p = subprocess.Popen(cmd, shell=True,
+                                 stdout=subprocess.PIPE, universal_newlines=True)
+            p.wait()
+            result_sacct = p.stdout.read()
+            sacct_stop_state = ["COMPLETED","FAILED","CANCELED","STOPPED"]
+            for state in sacct_stop_state:
+                if state in result_sacct:
+                    print("job %s finished (sacct showed %s)." % (job_id, state))
+                    return None
+            return "running"  # better to parse ST
         else:
-            return "running" # better to parse ST
+            # Waiting period of 15 seconds on systems that do not support sacct
+            if self.submit_time and ((time.time() - self.submit_time) > 15):
+                cmd = "squeue --job %s" % job_id
+                p = subprocess.Popen(cmd, shell=True,
+                                     stdout=subprocess.PIPE, universal_newlines=True)
+                p.wait()
+                stdout = p.stdout.read()
+
+                if p.returncode == 1:
+                    # maybe job is finished. squeue does not retain job information for long periods.
+                    return None
+                elif p.returncode != 0:
+                    raise SlurmError("squeue failed. returncode is %d.\nstdout:\n%s\n" % (p.returncode,
+                                                                                          stdout))
+                """
+                example:
+                     JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+                    944900       cpu  junk.sh kyamashi PD       0:00      1 (Priority)
+                """
+
+                status = {}
+
+                if job_id not in stdout and self.registered_job:
+                    print("job %s finished (squeue showed nothing)." % job_id)
+                    return None
+            return "running"  # better to parse ST
+
+
     # qstat()
 
     def stop_all(self):
@@ -373,7 +413,7 @@ class Job(object):
 
     def write_script(self, script_text):
         env = ""
-        re_allowed_env = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
+        re_allowed_env = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
         if self.copy_environ:
             for k in os.environ:
@@ -399,5 +439,37 @@ class Job(object):
     # write_script()
 
 # class Job
+class AutoJobManager(JobManager):
+    def __init__(self, pe_name="par",mem_per_cpu="default"):
+        engine = detect_engine()
+        if engine == "sge":
+            self.engine = SGE(pe_name=pe_name)
+        elif engine == "slurm":
+            self.engine = Slurm(pe_name=pe_name, mem_per_cpu=mem_per_cpu)
+        else:
+            self.engine =ExecLocal()
+        self.qstat = self.engine.qstat
+        self.submit = self.engine.submit
+        self.update_state = self.engine.update_state
+        self.qstat = self.engine.qstat
+        self.stop_all = self.engine.stop_all
+        self.qdel = self.engine.qdel
+        
+        
 
 
+def detect_engine():
+    if shutil.which("squeue") and shutil.which("sbatch"):
+        print("slurm detected. batch.engine=slurm")
+        return "slurm"
+    elif shutil.which("qstat"):
+        proc = subprocess.check_output(["qstat", "-help"], stderr=subprocess.PIPE)
+        if " -pe " in proc:
+            print("sge detected. batch.engine=sge ")
+            return "sge"
+        else:
+            print("pbs detected. batch.engine=pbs ")
+            return "pbs"
+    print("job scheduler was not found. batch.engine=sh")
+    return "sh"
+    
