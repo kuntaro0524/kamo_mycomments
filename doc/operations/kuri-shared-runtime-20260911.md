@@ -45,10 +45,15 @@ detached HEADで対象commitへ固定した。作業treeはclean。runtimeは
 Bashで次を実行する。
 
 ```bash
-source /staff/Common/kuntaro/kamodev/runtimes/current/activate.sh
+source /staff/Common/kuntaro/kamodev/activate-kamo.sh
 dials.version
 kamo --help
 ```
+
+`/staff/Common/kuntaro/kamodev/activate-kamo.sh` は、module機能を初期化し、
+`xds/20260610` を明示的にロードしてから `runtimes/current/activate.sh` をsourceする
+kuri用ランチャー。2026-09-11 15:14時点のSHA-256は
+`72dbd08902de4b59c8f5675745bf14c7f97ff455038a844915e4b456ea0ba468`。
 
 `activate.sh` はBash専用。`/bin/sh` からsourceしない。また、生成されたDIALS
 `setpaths.sh` は `set -u` が先に有効なshellでは失敗するため、activation後に
@@ -132,6 +137,25 @@ XDS単独checkは終了コード0で `OK` になった。共有runtimeのactivat
 `xds/20250714` を本処理可能とは扱わず、2026/06版で代替した結果を2025/07版の
 再現結果とも扱わない。
 
+### 当面の共有ランチャーと将来のfaketime構成
+
+ユーザー判断により、当面は実行可能な `xds/20260610` を使用する。共有ランチャーを作成し、
+login host、`kuri05`、`kuri-c09` でXDS単独check、DIALS version、KAMO helpを確認した。
+
+| job | node | state / exit | elapsed |
+| ---: | --- | --- | ---: |
+| 550721 | kuri05 | COMPLETED / 0:0 | 31 s |
+| 550722 | kuri-c09 | COMPLETED / 0:0 | 31 s |
+
+両ノードで `xds_par` は2026/06版、DIALS/KAMOは共有固定runtimeを指した。
+probeは `evidence/20260911-kuri-shared-launcher.sbatch`、ログは同名のnode/job別ファイル。
+
+ユーザー申告では、作者から旧binaryの利用にfaketimeを用いる案内を受けている。
+将来、2025/07版を使うfaketime構成を当面の2026/06版とは別に導入する意向。
+今回はfaketimeの導入・時刻指定・wrapper作成を行っていない。導入時は作者の案内内容、
+対象binary、固定日時、実体checksum、wrapper、ジョブへ伝播するPATHを記録し、
+2026/06版の結果と混同しない。
+
 ## Evidence
 
 - `evidence/20260911-kuri-shared-runtime.sbatch`
@@ -151,6 +175,7 @@ runtime `activate.sh` は
 
 - 有効なXDS moduleを起動手順へ固定（`xds/20260610` の単独checkは合格）
 - 希望する `xds/20250714` の正規に利用可能なbinary・運用条件を確認
+- 作者の案内内容を確認したうえで、2025/07版用faketime環境を別構成として検討
 - H5ToXds不合格の解消
 - サイト側で正式利用対象と確認されたノード範囲での追加確認
 - KAMO生成ジョブが同じ絶対Python/runtimeを再現することの確認

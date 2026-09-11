@@ -1,0 +1,13 @@
+Loading xds/20260610
+  Unloading conflict: xds/20250714
+job_id=550722
+hostname=kuri-c09.spring8.or.jp
+xds_par=/opt/xtal/xds/XDS-gfortran_Linux_x86_64_20260610/xds_par
+dials_version=/staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/build/bin/dials.version
+kamo=/staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/build/bin/kamo
+DIALS 3.23.0-g7aff524e7-release
+Python 3.11.11
+Installed in: /staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/modules/dials/src/dials
+Testing XDS..
+  OK
+shared_launcher_check=ok
