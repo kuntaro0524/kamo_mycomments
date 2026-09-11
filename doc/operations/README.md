@@ -8,6 +8,7 @@
 | --- | --- |
 | 統合コード commit | c811f9f21a177bc97e9f21066d3585474aa880a1 |
 | 作業 branch | integration/upstream-20260911 |
+| 現在の記録 HEAD | 93db2a4（次回再開時は `git log` で確認） |
 | 統合前 Fork | 662864d474c87d67e351c3599e44a57debc86239 |
 | 取り込み済み本家 | b4b12bd979886e50a537e28ab78ad13050776205 |
 | 元 Fork の退避 branch | archive/fork-before-upstream-20260911 |
@@ -29,6 +30,7 @@
 - [独立 runtime 構築・検証](runtime-20260911.md)
 - [クラスタ・module 環境の調査と起動設計](cluster-environment-design.md)（未実機検証）
 - [由来未確認データの試験・追加処理停止記録](smoke100-20260911.md)（baseline 不採用）
+- [次回再開用 handoff](handoff-20260911.md)
 - [installation check の保存ログ](evidence/20260911-installation.txt)
 
 各記録には対象コード commit を記載し、記録そのものの版は Git commit で管理する。
