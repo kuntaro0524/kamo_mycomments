@@ -38,8 +38,9 @@ matches upstream exactly. XSCALE options remain disabled by default.
 - git diff --cached --check against the old fork reports whitespace already
   present in upstream initlp.py and batchjob.py; upstream content was preserved.
 
-Full installation output is retained locally at validation/installation.log
-(ignored by the inherited ignore rules). No real diffraction processing or
+Full installation output is tracked at
+[operations/evidence/20260911-installation.txt](operations/evidence/20260911-installation.txt).
+The original local copy is validation/installation.log. No real diffraction processing or
 scientific baseline comparison was run. This commit is an integration candidate,
 not a validated production baseline. Resolve dependency setup, install this
 checkout in an isolated environment, then run the selected baseline dataset.

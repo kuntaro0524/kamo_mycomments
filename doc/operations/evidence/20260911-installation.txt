@@ -1,0 +1,45 @@
+/home/kuntaro/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-_h432o35 because there was an issue with the default path (/home/kuntaro/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+Loaded: /home/kuntaro/kamodev/kamo-merge-review/yamtbx/__init__.py
+Testing installation of KAMO.
+If you have trouble, please report the issue including all outputs:
+Info:
+   Python: 3.11.11
+     Exec: /oys/xtal/dials/dials-v3-23-0/conda_base/bin/python
+ Platform: Linux-6.8.0-136-generic-x86_64-with-glibc2.35
+
+Testing location..
+  /oys/xtal/dials/dials-v3-23-0/modules/yamtbx/yamtbx. OK
+Testing R..
+  Rscript is not avaiable. NG
+Testing NumPy..
+  1.26.4 installed. OK
+Testing SciPy..
+  1.15.0 installed. OK
+Testing networkx..
+  1.11 installed. OK
+Testing Matplotlib..
+  3.10.0 installed. OK
+Testing wxPython..
+  4.2.2 gtk3 (phoenix) wxWidgets 3.2.6 installed. OK
+Testing XDS..
+  OK
+Testing XDSSTAT..
+  Not installed. NG
+Testing ccp4..
+  OK
+Testing dials (package)..
+  DIALS 3.23.0-g7aff524e7-release
+  Python 3.11.11
+  Installed in: /oys/xtal/dials/dials-v3-23-0/modules/dials/src/dials
+  OK
+Testing dials (module)..
+  DIALS 3.23.0-g7aff524e7-release installed. OK
+Testing eiger hdf5 geometry recognition..
+  FormatHDFEigerNearlyNexus does not exist. This implies h5-recorded geometry can be no longer extracted using dxtbx. I hope it works. OK
+Testing Adxv..
+  Adxv is not avaiable. NG
+Testing H5ToXds..
+  OK
+
+3 Failures (tst_R, tst_xdsstat, tst_adxv)
