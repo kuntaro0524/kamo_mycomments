@@ -1,5 +1,10 @@
 # kuri04 接続引き継ぎ情報 — 2026-09-11
 
+> 更新: 本文は接続確認直後の調査前記録。列挙した未確認事項の後続結果は
+> [kuri04初期調査](kuri04-environment-survey-20260911.md)、
+> [代表ノード調査](kuri-node-survey-20260911.md)、
+> [共有runtime構築](kuri-shared-runtime-20260911.md)を参照する。
+
 ## 接続
 
 - 接続元: robo04

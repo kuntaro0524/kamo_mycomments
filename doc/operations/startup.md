@@ -8,24 +8,31 @@
 
 ## ソース取得と版確認
 
-2026-09-11 時点で integration branch はまだ GitHub に push していない。
-現時点では下記 GitHub clone だけで統合版を取得することはできない。
-push 後に branch の存在を確認して実行する。先に転送する場合は Git 履歴を含む bundle 等で渡し、
-対象 commit と文書 commit の両方を保存する。
+integration branch はGitHubのForkへpush済み。2026-09-11の同期修正前に公開確認した
+HEADは `79b1f55ffd8943c6dff1b9e9ba4f7ce209781bb5`。この文書を含む後続commitで進むため、
+取得後の `git log -1` とremote tracking branchの一致を正とする。
 
 ```bash
 git clone https://github.com/kuntaro0524/kamo_mycomments.git kamo
 cd kamo
 git fetch origin
-git switch --track origin/integration/upstream-20260911
-git remote add upstream https://github.com/keitaroyam/yamtbx.git
+git switch integration/upstream-20260911 2>/dev/null || \
+  git switch --track origin/integration/upstream-20260911
+git pull --ff-only origin integration/upstream-20260911
+git remote get-url upstream 2>/dev/null || \
+  git remote add upstream https://github.com/keitaroyam/yamtbx.git
 git status --short --branch
 git rev-parse HEAD
 git merge-base --is-ancestor c811f9f21a177bc97e9f21066d3585474aa880a1 HEAD
 ```
 
 HEAD は追加の文書 commit で進む場合がある。コードの厳密な再現対象は上記統合 commit。
-remote upstream が存在する場合は重複追加せず URL を確認する。
+既存upstreamのURLが期待値と異なる場合は、自動変更せず確認する。
+
+ホスト固有の指示ファイルは、そのホストに存在する場合だけ読む。kuri04では
+`/user/target/CLAUDE.md` を確認したが、robo04には `~/CLAUDE.md` が存在しないとの
+報告があるため、robo04再開の必須ファイルにしない。repository内の `AGENTS.md` と
+`doc/operations/` を共通の入口にする。
 
 ## 環境確認
 
@@ -111,8 +118,9 @@ resource-location check は旧インストールを参照したため、それ�
 
 ## 次に行う作業
 
-1. 初期調査記録のデータ候補を確認し、入力 checksum と全パラメータを保存する。
-2. 小規模処理、実データ処理、同条件再実行を行い、科学的 baseline を確立する。
+1. ユーザーが試料・測定由来・用途を確認して明示したデータだけを候補にする。
+2. 合意後、入力 checksum と全パラメータ、commit、runtime、出力先を先に保存する。
+3. 小規模処理、実データ処理、同条件再実行を行い、科学的 baseline を確立する。
 
 2026-09-11、ユーザーの判断により R / XDSSTAT / ADXV の不合格解消を前提とせず進める。
 これは各項目の合格を意味しない。実処理が必要な依存で失敗した場合はその時点で調査する。
