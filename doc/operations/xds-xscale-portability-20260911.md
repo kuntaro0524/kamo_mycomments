@@ -5,6 +5,11 @@ XDS binary は変更していない。実データ処理も行っていない。
 
 ## 現在の参照
 
+ユーザー補足によれば、`kay_20250823_xscale` の `xscale_par` は開発者 Kay 氏が個別に
+コンパイルした特殊 build である。公式 XDS 配布版や一般的な upstream build と同一視しない。
+source revision、build host、compiler、変更内容、利用許諾は未確認であり、Kay 氏または
+配布元への確認が必要。
+
 現在の PATH は `/oys/xtal/xds/xds_faketime_wrapper` を先頭に置き、以下を参照する。
 
 | command | wrapper | wrapper の実体指定 |
@@ -15,7 +20,7 @@ XDS binary は変更していない。実データ処理も行っていない。
 `/oys/xtal/xds/XDS-INTEL64_Linux_x86_64` は
 `XDS-INTEL64_Linux_x86_64_20250401` への symlink。実体 directory には
 XDS 一式と 2025-04-30 build の binary がある。`xscale_par` は別の
-`kay_20250823_xscale` directory に単独で存在する。
+`kay_20250823_xscale` directory に単独で存在する Kay 氏の個別 build。
 
 引数なし起動で、XDS は `VERSION Jan 19, 2025 BUILT=20250430`、XSCALE は
 `VERSION Jan 19, 2025 BUILT=20250823` を表示した。wrapper の既定
@@ -39,8 +44,9 @@ library は確認できない。xscale_par は libubsan と libstdc++ も参照�
 
 binary の起動メッセージに作者の `No redistribution.` が含まれる。したがって、
 この repository や `/staff/Common/kuntaro/kamodev/` へ binary をコピーして配布することはしない。
-移植は「同じ版の binary を正規の入手経路・利用条件で対象環境に配置し、checksum と
-実体 path を記録する」方式にする。利用許諾と期限を無視して faketime で延長する構成は採用しない。
+移植は「Kay 氏または配布元が認めた方法で同じ特殊 build を取得し、checksum と
+実体 path を記録する」方式にする。source や build 条件が提供されない場合は、binary の
+再コンパイルで同一性を仮定しない。利用許諾と期限を無視して faketime で延長する構成は採用しない。
 
 移植先で必要なもの:
 
