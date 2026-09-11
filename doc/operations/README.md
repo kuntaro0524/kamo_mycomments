@@ -29,6 +29,7 @@
 - [別環境での再開手順](startup.md)
 - [独立 runtime 構築・検証](runtime-20260911.md)
 - [クラスタ・module 環境の調査と起動設計](cluster-environment-design.md)（未実機検証）
+- [kuri04 OS・共有パス・Slurm 初期調査](kuri04-environment-survey-20260911.md)
 - [由来未確認データの試験・追加処理停止記録](smoke100-20260911.md)（baseline 不採用）
 - [次回再開用 handoff](handoff-20260911.md)
 - [GitHub push 記録](push-20260911.md)
