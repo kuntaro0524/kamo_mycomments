@@ -105,6 +105,21 @@ login hostの `/tmp` で実データなしのKAMO installation checkを実行し
 `H5ToXds=/opt/xtal/xds/extra_bin/H5ToXds`。基本起動は合格したが、XDS/HDF5を使う
 実処理が可能とはまだ扱わない。ユーザー指定データによる試験も未実施。
 
+### XDS期限切れの切り分け（15:10 JST）
+
+期限切れは共有DIALS runtimeに同梱されたXDSではなく、shellでロード済みだった
+`xds/20250714` module由来だった。modulefileは
+`/opt/xtal/xds/XDS-gfortran_Linux_x86_64_20250714` をPATHへ追加する。
+KAMOのcheckはPATH上の `xds_par` を引数なしで実行し、stdoutの
+`license expired` を判定している。
+
+`module load xds/20260610` を明示してから共有runtimeをactivateすると、
+`xds_par` は
+`/opt/xtal/xds/XDS-gfortran_Linux_x86_64_20260610/xds_par` を指し、
+XDS単独checkは終了コード0で `OK` になった。共有runtimeのactivationはXDSを
+選択・変更しないため、利用時に有効なXDS moduleを別途固定する必要がある。
+この時点ではactivationへのmodule操作の埋め込みは行っていない。
+
 ## Evidence
 
 - `evidence/20260911-kuri-shared-runtime.sbatch`
@@ -122,11 +137,11 @@ runtime `activate.sh` は
 
 ## 未完了事項
 
-- XDS license不合格とH5ToXds不合格の解消
+- 有効なXDS moduleを起動手順へ固定（`xds/20260610` の単独checkは合格）
+- H5ToXds不合格の解消
 - サイト側で正式利用対象と確認されたノード範囲での追加確認
 - KAMO生成ジョブが同じ絶対Python/runtimeを再現することの確認
 - ユーザーが由来・用途・入力パスを指定した後の実データbaseline
 
 runtimeと固定checkoutは実行中に更新しない。次版は別ディレクトリへ構築し、検証後に
 `current` symlinkを切り替える。
-
