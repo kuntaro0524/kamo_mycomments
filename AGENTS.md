@@ -3,6 +3,12 @@
 ユーザーの指示により、作業の各区切りで実務記録をこのリポジトリへ残す。
 記録の入口は `doc/operations/README.md`。会話や未追跡ファイルだけに記録を残さない。
 
+ZOOおよび関連ツール群のrepository固有作業を開始する前に、cross-repository architectureの正本である`zoo-hub/START_HERE.md`を確認する。
+
+```text
+git@github.com:kuntaro0524/zoo-hub.git
+```
+
 - 日時・ホスト・目的・対象 branch / commit / dirty state を記録する。
 - 変更前後の version、upstream commit、依存 version、実行コマンド、終了状態、
   検証結果、判断理由、未完了事項と次の手順を記録する。

@@ -2,6 +2,12 @@
 
 作業ごとの実務記録と、別環境で再開するための入口。
 
+ZOOおよび関連ツール群の作業を開始または再開するときは、repository固有の確認より先にcross-repository architectureの正本である`zoo-hub/START_HERE.md`を読んでください。
+
+```text
+git@github.com:kuntaro0524/zoo-hub.git
+```
+
 ## 現在の版
 
 | 項目 | 値 |

@@ -3,6 +3,12 @@
 これは統合版の独立検証環境を再構築する手順。robo04 で構築・起動確認済み。
 実データ baseline は未確立のため、本番検証済みの環境とは扱わない。
 
+ZOOおよび関連ツール群の作業を開始または再開するときは、まずcross-repository architectureの正本である`zoo-hub/START_HERE.md`を確認してください。
+
+```text
+git@github.com:kuntaro0524/zoo-hub.git
+```
+
 コピー元を利用できない環境や module 管理のクラスタには、このコピー手順をそのまま
 適用しない。[クラスタ環境の調査・起動設計](cluster-environment-design.md)を先に参照する。
 
