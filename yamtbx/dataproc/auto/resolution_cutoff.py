@@ -20,8 +20,23 @@ def fun_ed_aimless(s, d0, r):
 # fun_ed_aimless()
 
 def resolution_fitted(d0, r, cchalf_min=0.5):
-    return 1./numpy.sqrt((numpy.arctanh(1.-2.*cchalf_min)*r + d0))
+    # s^2 where the fitted curve crosses cchalf_min. The fit is not usable when
+    # this is not positive (e.g. d0 < 0 when only a few shells have signal).
+    s2 = numpy.arctanh(1.-2.*cchalf_min)*r + d0
+    if not (numpy.isfinite(s2) and s2 > 0): return float("nan")
+    return 1./numpy.sqrt(s2)
 # resolution_fitted()
+
+def resolution_by_shells(s2_list, cc_list, cchalf_min=0.5):
+    # Fallback for the case the curve fitting is not usable.
+    # Walk from the low resolution side and stop at the first shell
+    # whose CC1/2 is below cchalf_min (or not a number).
+    d_min = None
+    for s2, cc in zip(s2_list, cc_list):
+        if cc is None or cc != cc or cc < cchalf_min: break
+        d_min = 1./numpy.sqrt(s2)
+    return d_min
+# resolution_by_shells()
 
 def fit_curve_for_cchalf(s2_list, cc_list, log_out, verbose=True):
     import scipy.optimize
@@ -87,6 +102,14 @@ def initial_estimate_byfit_cchalf(i_obs, cc_half_min, anomalous_flag, log_out):
     shells_and_fit = (s_list, cc_list, (d0, r))
 
     d_min = resolution_fitted(d0, r, cc_half_min)
+    if not numpy.isfinite(d_min):
+        log_out.write("  Fitted curve is not usable for CC1/2= %.4f. Using shell-based estimate instead.\n" % cc_half_min)
+        d_min = resolution_by_shells(s_list, cc_list, cc_half_min)
+        if d_min is None:
+            log_out.write("  No low resolution shell with CC1/2 >= %.4f.\n" % cc_half_min)
+        else:
+            log_out.write("  Shell-based estimate: %.4f A\n" % d_min)
+
     return d_min, shells_and_fit
 # initial_estimate_byfit_cchalf()
 
@@ -138,6 +161,10 @@ class estimate_resolution_based_on_cc_half(object):
       return None, None
 
     d_min, self.shells_and_fit = initial_estimate_byfit_cchalf(self.i_obs, self.cc_half_min, self.anomalous_flag, self.log_out)
+    if d_min is None:
+      self.log_out.write("Can't estimate resolution: no valid CC1/2 in the statistics table.\n")
+      return None, None
+
     d_min = float("%.2f"%d_min)
     
     if d_min < self.d_min_data:

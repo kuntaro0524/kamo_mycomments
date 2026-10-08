@@ -242,7 +242,7 @@ def decide_resolution(summarydat, params, log_out):
     if None not in (est.d_min, est.cc_at_d_min):
         log_out.write("Best resolution cutoff= %.2f A @CC1/2= %.4f\n" % (est.d_min, est.cc_at_d_min))
     else:
-        log_out.write("Can't decide resolution cutoff. No reflections??\n")
+        log_out.write("Can't decide resolution cutoff. No reflections or no valid CC1/2??\n")
     return est.d_min
 # decide_resolution()
 
