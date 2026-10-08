@@ -359,6 +359,7 @@ def auto_merge(workdir, topdirs, cell_method, ref_array, ref_sym, merge_params, 
     merge_params.workdir = os.path.join(workdir, "%s_%.2fA"%(merge_params.clustering, merge_params.d_min))
     multi_merge.run(merge_params)
 
+    rescut_failed = False
     if rescut_params.auto:
         for cc_cut in (rescut_params.cc_one_half_min*.7, rescut_params.cc_one_half_min):
             rescut_params.cc_one_half_min = cc_cut
@@ -372,9 +373,16 @@ def auto_merge(workdir, topdirs, cell_method, ref_array, ref_sym, merge_params, 
                 multi_merge.run(merge_params)
                 choose_best_result(os.path.join(merge_params.workdir, "cluster_summary.dat"), log_out)
             else:
+                rescut_failed = True
                 break
 
-    os.rename(merge_params.workdir, merge_params.workdir+"_final")
+    if rescut_failed:
+        # Do not present a result without a decided resolution as the final one.
+        msg = "Resolution cutoff was not decided (CC1/2 >= %.4f). %s is not renamed to _final.\n" % (rescut_params.cc_one_half_min, merge_params.workdir)
+        log_out.write(msg)
+        open(os.path.join(merge_params.workdir, "RESCUT_FAILED"), "w").write(msg)
+    else:
+        os.rename(merge_params.workdir, merge_params.workdir+"_final")
     log_out.flush()
 # auto_merge()
 
