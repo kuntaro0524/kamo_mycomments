@@ -92,6 +92,9 @@ only_check_in_last_hours = 1
  .help = "Only check diffscan.log modified during the last specified hours"
 ramdisk_walk_interval = 2
  .type = float
+thumbnail = true
+ .type = bool
+ .help = "Create thumbnail jpg files of diffraction images"
 """
 
 params = None
@@ -172,8 +175,8 @@ class DiffScanManager(object):
             for scan in slog.scans:
                 fcs = [(os.path.join(slogdir, x[0]), x[1]) for x in scan.filename_idxes]
                 #print "fix=", fcs
-                #if env == "ppu": fcs_proxy = map(lambda x: (re.sub("^/isilon/users/", "/ramdisk/", x[0]), x[1]), fcs)
-                if env == "ppu": f_mod = lambda x: re.sub("^/isilon/users/", "/ramdisk/", x)
+                #if env == "ppu": fcs_proxy = map(lambda x: (re.sub(r"^/isilon/users/", "/ramdisk/", x[0]), x[1]), fcs)
+                if env == "ppu": f_mod = lambda x: re.sub(r"^/isilon/users/", "/ramdisk/", x)
                 else: f_mod = lambda x: x
                 unproc = [x for x in fcs if x[0] not in self.found_imgs and os.path.isfile(f_mod(x[0]))]
                 ret.extend([x+(scan,) for x in unproc])
@@ -472,7 +475,7 @@ class WatchDirThread(object):
             #print "new_imgs=", new_imgs
             for img, idx, scan in new_imgs:
                 img_actual = img
-                if params.env=="ppu": img_actual = re.sub("^/isilon/users/", "/ramdisk/", img)
+                if params.env=="ppu": img_actual = re.sub(r"^/isilon/users/", "/ramdisk/", img)
                 header = dict(file_prefix=scan.get_prefix()[:-1],
                               frame=idx-1,
                               raster_horizontal_number=scan.hpoints, raster_vertical_number=scan.vpoints,
@@ -592,7 +595,7 @@ class WatchRamdiskThread(object):
             if is_processed(imgf, touch): continue
 
             # Send it!
-            img_isilon = re.sub("^/ramdisk/", "/isilon/users/", imgf)
+            img_isilon = re.sub(r"^/ramdisk/", "/isilon/users/", imgf)
             header = dict(file_prefix=os.path.basename(img_isilon[:img_isilon.rindex("_")]),
                           frame=int(imgf[imgf.rindex("_")+1:imgf.rindex(".cbf")])-1)
             shikalog.debug("Sending %s,%s" % (header["file_prefix"], header["frame"]+1))
@@ -637,7 +640,7 @@ class WatchRamdiskThread(object):
             new_files = [os.path.join(root, x[0]) for x in new_files]
 
             for imgf in new_files:
-                img_isilon = re.sub("^/ramdisk/", "/isilon/users/", imgf)
+                img_isilon = re.sub(r"^/ramdisk/", "/isilon/users/", imgf)
                 header = dict(file_prefix=os.path.basename(img_isilon[:img_isilon.rindex("_")]),
                               frame=int(imgf[imgf.rindex("_")+1:imgf.rindex(".cbf")])-1)
                 shikalog.debug("Sending %s" % img_isilon)
@@ -837,7 +840,9 @@ class ResultsManager(object):
                                 cur.execute("create table spots (filename text primary key, spots blob);")
 
                         # save jpg
-                        if "jpgdata" in msg and msg["jpgdata"]:
+                        if not params.thumbnail:
+                            pass # don't make thumbnails
+                        elif "jpgdata" in msg and msg["jpgdata"]:
                             jpgdir = os.path.join(wdir, 
                                                   "thumb_%s_%.3d" % (str(msg["file_prefix"]), msg["idx"]//1000))
                             try: os.mkdir(jpgdir)

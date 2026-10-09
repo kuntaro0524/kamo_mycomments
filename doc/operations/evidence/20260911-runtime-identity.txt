@@ -1,0 +1,13 @@
+2026-09-11T09:21:53+09:00
+/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/bin/kamo
+/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/bin/kamo.multi_merge
+DIALS 3.23.0-g7aff524e7-release
+Python 3.11.11
+Installed in: /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dials/src/dials
+Fontconfig error: Cannot load default config file: No such file: (null)
+Python: /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/conda_base/bin/python
+libtbx build: /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build
+yamtbx: /home/kuntaro/kamodev/kamo-merge-review/yamtbx/__init__.py
+resources: /home/kuntaro/kamodev/kamo-merge-review/yamtbx
+DIALS env: /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo
+Module, interpreter, resource checks: PASS

@@ -1,0 +1,16 @@
+{
+  "integrated.mtz": {
+    "reflections": 45981,
+    "sha256": "eebd838f0ab53d56e84215c2c64bb7de9ec783b6b092cf3f0309aebcde258c51"
+  },
+  "aimless_unmerged.mtz": {
+    "reflections": 45930,
+    "sha256": "f5bdd1c3cda01af309957f23e3c3766a262baff6205ed1585c098bf8caffe1f2"
+  },
+  "kamo_result_keys": [
+    "cutoffs",
+    "d_min",
+    "stats",
+    "symm"
+  ]
+}

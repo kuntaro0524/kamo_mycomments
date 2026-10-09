@@ -1,0 +1,5 @@
+job_id=550715
+partition=kuri
+hostname=kuri05.spring8.or.jp
+Linux kuri05.spring8.or.jp 7.0.0-28-generic #28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 15:50:57 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+/var/spool/slurm/slurmd/job550715/slurm_script: 4: /staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/activate.sh: source: not found

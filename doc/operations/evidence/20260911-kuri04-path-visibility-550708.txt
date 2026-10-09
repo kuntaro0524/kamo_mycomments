@@ -1,0 +1,32 @@
+job_id=550708
+partition=debug
+submit_host=kuri04.spring8.or.jp
+node_list=kuri-c13
+hostname=kuri-c13.spring8.or.jp
+pwd=/staff/Common/kuntaro/kamodev/kamo
+Linux kuri-c13.spring8.or.jp 7.0.0-28-generic #28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 15:50:57 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+visible=/staff/Common/kuntaro/kamodev/kamo
+mode=drwxrwxr-x owner=target group=target path=/staff/Common/kuntaro/kamodev/kamo
+TARGET SOURCE                                                                                                                                                                           FSTYPE OPTIONS
+/staff 10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/staff ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl,recover_session=clean
+/staff 10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/staff ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl,recover_session=clean
+visible=/user/target
+mode=drwxr-x--- owner=target group=target path=/user/target
+TARGET SOURCE                                                                                                                                                                          FSTYPE OPTIONS
+/user  10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/user ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl,recover_session=clean
+/user  10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/user ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl,recover_session=clean
+write_probe=ok mode=-rw-rw-r-- owner=target group=target path=doc/operations/evidence/.kuri04-path-write-550708
+write_probe_cleanup=ok

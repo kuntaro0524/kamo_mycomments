@@ -1,0 +1,24 @@
+{
+  "started": "2026-09-11T09:27:51.998746+09:00",
+  "python": "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/conda_base/bin/python",
+  "yamtbx": "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/yamtbx/yamtbx/__init__.py",
+  "parameters": {
+    "filename_template": "/home/kuntaro/Data/images/cry00_??????.h5",
+    "prefix": "/home/kuntaro/Data/images/cry00",
+    "nr_range": [
+      1,
+      100
+    ],
+    "wdir": "/home/kuntaro/kamodev/runs/20260911-kamo-dials-100",
+    "known_xs": null,
+    "overrides": {},
+    "scan_varying": false,
+    "nproc": 4
+  },
+  "git_commit": "218c7fbba09e9f76f9ae937cc82be44be15d8ab0",
+  "git_status": "",
+  "input_sha256": {
+    "cry00_master.h5": "f83abf602dab8068ee270e3c5d6a2363d76c1eea5aad622c2cbfa6c69ddd8e8a",
+    "cry00_data_000001.h5": "cbfbb6a73d6409d1272cda2d07dc86de26bea01d428b486d9cc5bf8bf9877b68"
+  }
+}

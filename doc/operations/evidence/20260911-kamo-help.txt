@@ -1,0 +1,147 @@
+
+KAMO (Katappashikara Atsumeta data wo Manual yorimoiikanjide Okaeshisuru) system is an automated data processing system for SPring-8 beamlines.
+This is an alpha-version. If you found something wrong, please let staff know! We would appreciate your feedback.
+
+* Use cases (options) *
+ - Attention! when not small-wedge mode (normal data collection), small_wedges=false is needed!!
+ - If you don't want to use SGE, batch.engine=sh is required.
+
+1) On beamline, on-line data processing along with data collection
+
+  bl=32xu small_wedges=false [workdir=_kamoproc]
+
+2) With ZOO system on BL32XU
+
+  bl=32xu mode=zoo [workdir=_kamoproc]
+
+3) To process already-collected data (off-line & directory search mode)
+
+  bl=other [include_dir=dirs.lst]
+
+** This program must be started in the top directory of your datasets! **
+   (Only processes the data in the subdirectories)
+
+
+All parameters:
+
+  topdir = None
+    .help = "files/subdirectories in this directory will be processed"
+  include_dir = None
+    .help = "directories to include (those not matched will be excluded)"
+  exclude_dir = None
+    .help = "directories to exclude (those not matched will be included)"
+  workdir = _kamoproc
+    .help = "working directory. if relpath, workdir will be made in topdir."
+  adxv = None
+    .help = "adxv command"
+  bl = 32xu 41xu 44xu 45xu 26b1 26b2 38b1 12b2 other
+    .help = "Choose beamline where you start program"
+  blconfig = []
+  mode = zoo *normal
+    .help = "When Zoo, specify mode=zoo"
+  date = "today"
+    .help = "Data collection date (\"today\" or %Y-%d-%m format)"
+  checklog_daybefore = 2
+    .help = "if 2 specified, check BSS log file from given date -2 days"
+  jobspkl = None
+    .help = "Load jobs.pkl and don't find new jobs (for review)"
+  logwatch_interval = 30
+    .help = "interval in sec to check BSS log & processing results"
+  logwatch_once = None
+    .help = "find datasets only once (when program started). Default: true if"
+            "bl=other, otherwise false."
+  logwatch_target = local blconfig *dataset_paths_txt
+    .help = "How to find datasets. local: just traverse subdirectories to find"
+            "data; blconfig: BSS log files in BLCONFIG/log/ are checked;"
+            "dataset_paths_txt: on SPring-8 beamlines"
+            "~/.dataset_paths_for_kamo_BLNAME.txt is checked, otherwise users"
+            "should give a path."
+  dataset_paths_txt = None
+    .help = "A text file that contains dataset_template, start, end frame"
+            "numbers separeted by comma in each line. If specified, the update"
+            "of the file is checked and data processing will start. Each line"
+            "should end with newline character. template should look lie"
+            "/foo/bar_??????.cbf"
+  check_all_files_exist = True
+    .help = "Check all files in job exist before starting processing"
+  auto_mode = true
+    .help = "automatically start processing when data collection finished."
+  small_wedges = true
+    .help = "Optimized for small wedge data processing"
+  batch {
+    engine = sge pbs slurm sh *auto
+    sge_pe_name = par
+      .help = "pe name (put after -pe option)"
+    nproc_each = 4
+      .help = "maximum number of cores used for single data processing"
+    sh_max_jobs = Auto
+      .help = "maximum number of concurrent jobs when engine=sh"
+    mem_per_cpu = default
+      .help = "mem_per_cpu (slurm --mem option)"
+  }
+  use_tmpdir_if_available = true
+    .help = "Use ramdisk or tempdir if sufficient size is available"
+  known {
+    unit_cell = None
+      .help = "cell dimension"
+    space_group = None
+      .help = "space group (no. or name)"
+    method = *not_use_first use_first symm_constraint_only correct_only
+      .help = "not_use_first: Try indexing without prior information first,"
+              "and if failed, use prior. use_first: Try indexing with prior"
+              "information. symm_constraint_only: Try indexing without prior"
+              "information, and apply symmetry constraints for determined unit"
+              "cell. correct_only: Use given symmetry in CORRECT. May be"
+              "useful in recycling."
+    force = true
+      .help = "Force to use given symmetry in scaling"
+  }
+  auto_frame_exclude_spot_based = false
+    .help = "automatic frame exclusion from integration based on spot search"
+            "result."
+  exclude_ice_resolutions = false
+  anomalous = true
+  engine = *xds dials
+  xds {
+    use_dxtbx = False
+      .help = "Use dxtbx for generation of XDS.INP"
+    minpk = None
+    exclude_resolution_range = None
+    repeat = 1
+      .help = "if more than 1, copy GXPARM.XDS to XPARM.XDS and re-integrate"
+    ex = []
+      .help = "extra keywords for XDS.INP"
+    reverse_phi = None
+      .help = "Automatic decision if None (by default)."
+    override {
+      geometry_reference = None
+        .help = "XDS.INP or json file of dials"
+      fix_geometry_when_reference_provided = False
+        .help = "Don't refine geometric parameters when geometry_reference="
+                "specified."
+      rotation_axis = None
+        .help = "override ROTATION_AXIS= "
+    }
+    lib = None
+      .help = "LIB= for XDS.INP"
+  }
+  dials {
+    scan_varying = False
+  }
+  merging {
+    cell_grouping {
+      tol_length = None
+        .help = relative_length_tolerance
+      tol_angle = None
+        .help = "absolute_angle_tolerance in degree"
+    }
+  }
+  split_hdf_miniset = true
+    .help = "Whether or not minisets in hdf5 are treated individually."
+  split_data_by_deg = None
+    .help = "Split data with specified degrees. Currently only works with"
+            "bl=other."
+  log_root = None
+    .help = "debug log directory"
+  auto_close = *no nogui gui
+    .help = "auto close"

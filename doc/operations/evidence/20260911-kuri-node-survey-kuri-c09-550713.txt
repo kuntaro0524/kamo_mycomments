@@ -1,0 +1,91 @@
+job_id=550713
+partition=kuri
+submit_host=kuri04.spring8.or.jp
+node_list=kuri-c09
+hostname=kuri-c09.spring8.or.jp
+pwd=/staff/Common/kuntaro/kamodev/kamo
+tmpdir=/tmp
+Linux kuri-c09.spring8.or.jp 7.0.0-28-generic #28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 15:50:57 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+Architecture:                            x86_64
+CPU op-mode(s):                          32-bit, 64-bit
+Address sizes:                           46 bits physical, 48 bits virtual
+Byte Order:                              Little Endian
+CPU(s):                                  192
+On-line CPU(s) list:                     0-191
+Vendor ID:                               GenuineIntel
+Model name:                              Intel(R) Xeon(R) Platinum 8168 CPU @ 2.70GHz
+CPU family:                              6
+Model:                                   85
+Thread(s) per core:                      2
+Core(s) per socket:                      24
+Socket(s):                               4
+Stepping:                                4
+CPU(s) scaling MHz:                      38%
+CPU max MHz:                             3700.0000
+CPU min MHz:                             1200.0000
+BogoMIPS:                                5400.00
+Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 pti intel_ppin ssbd mba ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts vnmi pku ospke md_clear flush_l1d arch_capabilities
+Virtualization:                          VT-x
+L1d cache:                               3 MiB (96 instances)
+L1i cache:                               3 MiB (96 instances)
+L2 cache:                                96 MiB (96 instances)
+L3 cache:                                132 MiB (4 instances)
+NUMA node(s):                            4
+NUMA node0 CPU(s):                       0-23,96-119
+NUMA node1 CPU(s):                       24-47,120-143
+NUMA node2 CPU(s):                       48-71,144-167
+NUMA node3 CPU(s):                       72-95,168-191
+Vulnerability Gather data sampling:      Vulnerable
+Vulnerability Ghostwrite:                Not affected
+Vulnerability Indirect target selection: Not affected
+Vulnerability Itlb multihit:             KVM: Mitigation: Split huge pages
+Vulnerability L1tf:                      Mitigation; PTE Inversion; VMX conditional cache flushes, SMT vulnerable
+Vulnerability Mds:                       Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Meltdown:                  Mitigation; PTI
+Vulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Old microcode:             Not affected
+Vulnerability Reg file data sampling:    Not affected
+Vulnerability Retbleed:                  Mitigation; IBRS
+Vulnerability Spec rstack overflow:      Not affected
+Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:                Mitigation; IBRS; IBPB conditional; STIBP conditional; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected
+Vulnerability Srbds:                     Not affected
+Vulnerability Tsa:                       Not affected
+Vulnerability Tsx async abort:           Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Vmscape:                   Mitigation; IBPB before exit to userspace
+visible=/staff/Common/kuntaro/kamodev/kamo
+mode=drwxrwxr-x owner=target group=target path=/staff/Common/kuntaro/kamodev/kamo
+Filesystem                                                                                                                                                                       Type      1K-blocks           Used     Available Use% Mounted on
+10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/staff ceph 2724370350080K 2007528538112K 716841811968K  74% /staff
+TARGET SOURCE                                                                                                                                                                           FSTYPE OPTIONS
+/staff 10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/staff ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl
+visible=/user/target
+mode=drwxr-x--- owner=target group=target path=/user/target
+Filesystem                                                                                                                                                                      Type      1K-blocks           Used     Available Use% Mounted on
+10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/user ceph 2724370350080K 2007528538112K 716841811968K  74% /user
+TARGET SOURCE                                                                                                                                                                          FSTYPE OPTIONS
+/user  10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/user ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl
+visible=/tmp
+mode=drwx------ owner=target group=target path=/tmp
+Filesystem     Type   1K-blocks      Used  Available Use% Mounted on
+/dev/sda2      btrfs 232795136K 54382268K 172248404K  24% /tmp
+TARGET SOURCE                           FSTYPE OPTIONS
+/tmp   /dev/sda2[/tmp/slurm-550713/tmp] btrfs  rw,relatime,space_cache=v2,subvolid=5,subvol=/
+shared_write_probe=ok mode=-rw-rw-r-- owner=target group=target path=doc/operations/evidence/.kuri-node-shared-write-550713
+shared_write_probe_cleanup=ok
+local_write_probe=ok mode=-rw-rw-r-- owner=target group=target path=/tmp/kamo-node-local-write-550713
+local_write_probe_cleanup=ok

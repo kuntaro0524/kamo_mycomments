@@ -1,10 +1,18 @@
 # yamtbx
 This is my crystallographic toolbox. This may contain some useful codes for you, but yamtbx comes with NO WARRANTY of any kind.
 
+ZOOおよび関連ツール群に関する作業を開始するときは、まずcross-repository architectureの正本である`zoo-hub/START_HERE.md`を確認してください。
+
+```text
+git@github.com:kuntaro0524/zoo-hub.git
+```
+
 Most of python scripts or C++ programs in yamtbx/ are designed to work with [CCTBX](https://cctbx.github.io/).
 For installation, please read [INSTALL.md](INSTALL.md).
 
 ### Documents
+
+* Fork 運用・バージョン記録 / 別環境での再開: [作業記録の入口](doc/operations/README.md)
 
 * KAMO (Automatic data processing) [Japanese](doc/kamo-ja.md) [English](doc/kamo-en.md)
 * SHIKA (Spotfinder with GUI) [Japanese](doc/shika-ja.md) [English](doc/shika-en.md)

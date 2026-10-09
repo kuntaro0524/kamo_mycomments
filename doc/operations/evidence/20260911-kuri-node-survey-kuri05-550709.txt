@@ -1,0 +1,43 @@
+job_id=550709
+partition=kuri
+submit_host=kuri04.spring8.or.jp
+node_list=kuri05
+hostname=kuri05.spring8.or.jp
+pwd=/staff/Common/kuntaro/kamodev/kamo
+tmpdir=/tmp
+Linux kuri05.spring8.or.jp 7.0.0-28-generic #28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 15:50:57 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+visible=/staff/Common/kuntaro/kamodev/kamo
+mode=drwxrwxr-x owner=target group=target path=/staff/Common/kuntaro/kamodev/kamo
+Filesystem                                                                                                                                                                       Type      1K-blocks           Used     Available Use% Mounted on
+10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/staff ceph 2724370415616K 2007528538112K 716841877504K  74% /staff
+TARGET SOURCE                                                                                                                                                                           FSTYPE OPTIONS
+/staff 10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/staff ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl,recover_session=clean
+visible=/user/target
+mode=drwxr-x--- owner=target group=target path=/user/target
+Filesystem                                                                                                                                                                      Type      1K-blocks           Used     Available Use% Mounted on
+10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/user ceph 2724370415616K 2007528538112K 716841877504K  74% /user
+TARGET SOURCE                                                                                                                                                                          FSTYPE OPTIONS
+/user  10.178.4.65:6789,10.178.4.66:6789,10.178.4.68:6789,10.178.4.69:6789,10.178.4.70:6789,10.178.4.71:6789,10.178.4.72:6789,10.178.4.73:6789,10.178.4.79:6789,10.178.4.80:6789:/user ceph   rw,relatime,name=bladmin,secret=<hidden>,fsid=25736d26-92d9-11ed-9bd2-f1e72b30b88c,acl,recover_session=clean
+visible=/tmp
+mode=drwx------ owner=target group=target path=/tmp
+Filesystem     Type   1K-blocks      Used  Available Use% Mounted on
+/dev/sda2      btrfs 779693056K 27107444K 743090460K   4% /tmp
+TARGET SOURCE                           FSTYPE OPTIONS
+/tmp   /dev/sda2[/tmp/slurm-550709/tmp] btrfs  rw,relatime,space_cache=v2,subvolid=5,subvol=/
+shared_write_probe=ok mode=-rw-rw-r-- owner=target group=target path=doc/operations/evidence/.kuri-node-shared-write-550709
+shared_write_probe_cleanup=ok
+local_write_probe=ok mode=-rw-rw-r-- owner=target group=target path=/tmp/kamo-node-local-write-550709
+local_write_probe_cleanup=ok
