@@ -13,14 +13,8 @@ from yamtbx.dataproc.auto import resolution_cutoff as rc
 def shells(d_max, d_min, n):
     return numpy.linspace(1./d_max**2, 1./d_min**2, n)
 
-def estimate(s2, cc, cc_half_min):
-    # Same steps as initial_estimate_byfit_cchalf() after the shell statistics.
-    log = io.StringIO()
-    d0, r = rc.fit_curve_for_cchalf(s2, cc, log, verbose=False)
-    d_min = rc.resolution_fitted(d0, r, cc_half_min)
-    if not numpy.isfinite(d_min):
-        d_min = rc.resolution_by_shells(s2, cc, cc_half_min)
-    return d_min, (d0, r)
+def estimate(s2, cc, cc_half_min, fit_fallback="shells"):
+    return rc.initial_estimate_from_shells(s2, cc, cc_half_min, io.StringIO(), fit_fallback)
 
 
 def test_usable_fit_is_unchanged():
@@ -64,15 +58,26 @@ def test_fallback_when_fit_is_not_usable():
     assert d0 < 0
     assert numpy.isnan(rc.resolution_fitted(d0, r, 0.35))
     assert abs(d_min - 1./numpy.sqrt(s2[9])) < 1e-9
+    # without the option, the estimate is not decided (as before, NaN)
+    d_min, _ = estimate(s2, cc, 0.35, fit_fallback="none")
+    assert numpy.isnan(d_min)
 
 def test_no_estimate_when_all_shells_are_noise():
     s2 = shells(50., 1.65, 200)
     cc = numpy.full(200, 0.15)
     d_min, (d0, r) = estimate(s2, cc, 0.35)
-    assert d_min is None
+    assert numpy.isnan(d_min)
 
 def test_too_few_shells():
     d_min, _ = estimate([0.01, 0.02], [0.9, 0.8], 0.5)
     assert abs(d_min - 1./numpy.sqrt(0.02)) < 1e-9
     d_min, _ = estimate([0.01, 0.02], [0.1, 0.1], 0.5)
-    assert d_min is None
+    assert numpy.isnan(d_min)
+
+def test_phil_option_default_is_none():
+    import iotbx.phil
+    from yamtbx.dataproc.auto.command_line import auto_multi_merge
+    params = iotbx.phil.parse(auto_multi_merge.gui_phil_str).extract()
+    assert params.rescut.fit_fallback == "none"
+    params = iotbx.phil.parse(auto_multi_merge.gui_phil_str).fetch(iotbx.phil.parse("rescut.fit_fallback=shells")).extract()
+    assert params.rescut.fit_fallback == "shells"

@@ -86,6 +86,9 @@ rescut {
   .type = float
  cc_half_tol = 0.03
   .type = float
+ fit_fallback = *none shells
+  .type = choice(multi=False)
+  .help = "What to do when the CC1/2 curve fitting is not usable. none: give up (the merging directory is renamed to _failed). shells: use the lowest resolution shells; the initial estimate is the last shell before CC1/2 falls below the threshold."
 }
 
 xscale {
@@ -238,11 +241,12 @@ def decide_resolution(summarydat, params, log_out):
     log_out.write("Using %s for deciding resolution cutoff.\n" % best)
     iobs = XDS_ASCII(best, i_only=True).i_obs() # Result with max CC1/2
 
-    est = estimate_resolution_based_on_cc_half(iobs, params.cc_one_half_min, params.cc_half_tol, params.n_bins, log_out=log_out)
+    est = estimate_resolution_based_on_cc_half(iobs, params.cc_one_half_min, params.cc_half_tol, params.n_bins, log_out=log_out,
+                                               fit_fallback=params.fit_fallback)
     if None not in (est.d_min, est.cc_at_d_min):
         log_out.write("Best resolution cutoff= %.2f A @CC1/2= %.4f\n" % (est.d_min, est.cc_at_d_min))
     else:
-        log_out.write("Can't decide resolution cutoff. No reflections or no valid CC1/2??\n")
+        log_out.write("Can't decide resolution cutoff.\n")
     return est.d_min
 # decide_resolution()
 

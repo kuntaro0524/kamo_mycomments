@@ -79,7 +79,27 @@ def fit_curve_for_cchalf(s2_list, cc_list, log_out, verbose=True):
     return lsq.x
 # fit_curve_for_cchalf()
 
-def initial_estimate_byfit_cchalf(i_obs, cc_half_min, anomalous_flag, log_out):
+def initial_estimate_from_shells(s_list, cc_list, cc_half_min, log_out, fit_fallback="none"):
+    # Returns d_min (NaN if not decided) and the fitted (d0, r).
+    # fit_fallback="shells": when the fitted curve is not usable, use the
+    # shell-based estimate instead of giving up.
+    d0, r = fit_curve_for_cchalf(s_list, cc_list, log_out)
+    d_min = resolution_fitted(d0, r, cc_half_min)
+
+    if not numpy.isfinite(d_min):
+        log_out.write("  Fitted curve is not usable for CC1/2= %.4f.\n" % cc_half_min)
+        if fit_fallback == "shells":
+            d_min = resolution_by_shells(s_list, cc_list, cc_half_min)
+            if d_min is None:
+                log_out.write("  No low resolution shell with CC1/2 >= %.4f.\n" % cc_half_min)
+                d_min = float("nan")
+            else:
+                log_out.write("  Using shell-based estimate instead: %.4f A\n" % d_min)
+
+    return d_min, (d0, r)
+# initial_estimate_from_shells()
+
+def initial_estimate_byfit_cchalf(i_obs, cc_half_min, anomalous_flag, log_out, fit_fallback="none"):
     # Up to 200 bins. If few reflections, 50 reflections per bin. At least 9 shells.
     n_bins = max(min(int(i_obs.size()/50. + .5), 200), 9)
     log_out.write("Using %d bins for initial estimate\n" % n_bins)
@@ -98,24 +118,14 @@ def initial_estimate_byfit_cchalf(i_obs, cc_half_min, anomalous_flag, log_out):
       except RuntimeError: # complains that no reflections left after sigma-filtering.
         continue
 
-    d0, r = fit_curve_for_cchalf(s_list, cc_list, log_out)
+    d_min, (d0, r) = initial_estimate_from_shells(s_list, cc_list, cc_half_min, log_out, fit_fallback)
     shells_and_fit = (s_list, cc_list, (d0, r))
-
-    d_min = resolution_fitted(d0, r, cc_half_min)
-    if not numpy.isfinite(d_min):
-        log_out.write("  Fitted curve is not usable for CC1/2= %.4f. Using shell-based estimate instead.\n" % cc_half_min)
-        d_min = resolution_by_shells(s_list, cc_list, cc_half_min)
-        if d_min is None:
-            log_out.write("  No low resolution shell with CC1/2 >= %.4f.\n" % cc_half_min)
-        else:
-            log_out.write("  Shell-based estimate: %.4f A\n" % d_min)
-
     return d_min, shells_and_fit
 # initial_estimate_byfit_cchalf()
 
 
 class estimate_resolution_based_on_cc_half(object):
-  def __init__(self, i_obs, cc_half_min, cc_half_tol, n_bins, anomalous_flag=False, log_out=null_out()):
+  def __init__(self, i_obs, cc_half_min, cc_half_tol, n_bins, anomalous_flag=False, log_out=null_out(), fit_fallback="none"):
     adopt_init_args(self, locals())
     log_out.write("estimate_resolution_based_on_cc_half: cc_half_min=%.4f, cc_half_tol=%.4f n_bins=%d\n" % (cc_half_min, cc_half_tol, n_bins))
     self.d_min_data = i_obs.d_min()
@@ -160,9 +170,9 @@ class estimate_resolution_based_on_cc_half(object):
       self.log_out.write("No reflections.\n")
       return None, None
 
-    d_min, self.shells_and_fit = initial_estimate_byfit_cchalf(self.i_obs, self.cc_half_min, self.anomalous_flag, self.log_out)
-    if d_min is None:
-      self.log_out.write("Can't estimate resolution: no valid CC1/2 in the statistics table.\n")
+    d_min, self.shells_and_fit = initial_estimate_byfit_cchalf(self.i_obs, self.cc_half_min, self.anomalous_flag, self.log_out, self.fit_fallback)
+    if not numpy.isfinite(d_min):
+      self.log_out.write("Can't estimate resolution from CC1/2 (fit_fallback=%s).\n" % self.fit_fallback)
       return None, None
 
     d_min = float("%.2f"%d_min)
