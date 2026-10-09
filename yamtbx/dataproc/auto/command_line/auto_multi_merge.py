@@ -378,9 +378,8 @@ def auto_merge(workdir, topdirs, cell_method, ref_array, ref_sym, merge_params, 
 
     if rescut_failed:
         # Do not present a result without a decided resolution as the final one.
-        msg = "Resolution cutoff was not decided (CC1/2 >= %.4f). %s is not renamed to _final.\n" % (rescut_params.cc_one_half_min, merge_params.workdir)
-        log_out.write(msg)
-        open(os.path.join(merge_params.workdir, "RESCUT_FAILED"), "w").write(msg)
+        log_out.write("Resolution cutoff was not decided (CC1/2 >= %.4f). Renaming %s to _failed.\n" % (rescut_params.cc_one_half_min, merge_params.workdir))
+        os.rename(merge_params.workdir, merge_params.workdir+"_failed")
     else:
         os.rename(merge_params.workdir, merge_params.workdir+"_final")
     log_out.flush()
