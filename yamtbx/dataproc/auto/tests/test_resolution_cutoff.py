@@ -117,3 +117,15 @@ def test_choose_best_result_skips_results_without_inner_signal(tmp_path):
 def test_choose_best_result_none_when_no_result_has_inner_signal(tmp_path):
     from yamtbx.dataproc.auto.command_line.auto_multi_merge import choose_best_result
     assert choose_best_result(write_summary(tmp_path), io.StringIO(), min_cchalf_in=99.) is None
+
+def test_choose_best_result_falls_back_to_the_rest_when_first_half_has_no_signal(tmp_path):
+    from yamtbx.dataproc.auto.command_line.auto_multi_merge import choose_best_result
+    text = """\
+     cluster    ClH run Redun CC1/2 CC1/2.ou CC1/2.in
+cluster_0003   1.00   2  11.0  13.8      1.2      9.0
+cluster_0002   1.00   2  10.0   9.2      3.0      6.6
+cluster_0001   0.50   3   3.0  11.7      3.7     98.5
+cluster_0000   0.40   3   2.0  21.5      5.1     98.5
+"""
+    best = choose_best_result(write_summary(tmp_path, text), io.StringIO(), min_cchalf_in=35.)
+    assert best.endswith("cluster_0000/run_03/xscale.hkl")

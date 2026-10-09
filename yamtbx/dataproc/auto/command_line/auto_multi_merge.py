@@ -226,16 +226,21 @@ def choose_best_result(summarydat, log_out, min_cchalf_in=None):
     # Remove non-final runs
     results = [x for x in results if x[2]==max(cls_runs[x[1]])]
 
-    if min_cchalf_in is not None:
-        # NaN is also removed here
-        ok = [x for x in results if x[6] >= min_cchalf_in]
-        log_out.write("%d of %d results have inner shell CC1/2 >= %.1f\n" % (len(ok), len(results), min_cchalf_in))
-        results = ok
-        if not results: return None
-
     results.sort(key=lambda x:x[5], reverse=True)
+    all_results = results
     if len(results) > 2:
         results = results[:len(results)//2] # First half of top redundancy
+
+    if min_cchalf_in is not None:
+        # Keep the usual choice (first half of top redundancy) and only drop
+        # results without signal. NaN is also removed here.
+        has_signal = lambda x: x[6] >= min_cchalf_in
+        n_ok = len([x for x in all_results if has_signal(x)])
+        log_out.write("%d of %d results have inner shell CC1/2 >= %.1f\n" % (n_ok, len(all_results), min_cchalf_in))
+        results = [x for x in results if has_signal(x)]
+        if not results: # none in the first half; look at the rest
+            results = [x for x in all_results if has_signal(x)]
+        if not results: return None
 
     results.sort(key=lambda x:(x[3], x[4]), reverse=True)
     best_result = results[0][0]
