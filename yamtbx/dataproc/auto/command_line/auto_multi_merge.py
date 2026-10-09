@@ -86,6 +86,9 @@ rescut {
   .type = float
  cc_half_tol = 0.03
   .type = float
+ skip_no_signal = false
+  .type = bool
+  .help = "When choosing the result used for deciding the resolution cutoff, skip results whose inner shell CC1/2 is below cc_one_half_min. Useful when d_min_start is much higher than the resolution of data, where overall CC1/2 is dominated by shells without signal."
  fit_fallback = *none shells
   .type = choice(multi=False)
   .help = "What to do when the CC1/2 curve fitting is not usable. none: give up (the merging directory is renamed to _failed). shells: use the lowest resolution shells; the initial estimate is the last shell before CC1/2 falls below the threshold."
@@ -190,7 +193,8 @@ def read_sample_info(csvin, datadir=None):
     return ret
 # read_sample_info()
 
-def choose_best_result(summarydat, log_out):
+def choose_best_result(summarydat, log_out, min_cchalf_in=None):
+    # min_cchalf_in: results whose inner shell CC1/2 [%] is below this value are not chosen.
     wdir = os.path.dirname(summarydat)
 
     lines = [x for x in open(summarydat) if not x.startswith("#")]
@@ -198,6 +202,7 @@ def choose_best_result(summarydat, log_out):
     header = lines[0].split()
     i_cchalf = header.index("CC1/2")
     i_cchalf_ou = header.index("CC1/2.ou")
+    i_cchalf_in = header.index("CC1/2.in")
     i_redun = header.index("Redun")
     i_cls = header.index("cluster")
     i_run = header.index("run")
@@ -211,7 +216,8 @@ def choose_best_result(summarydat, log_out):
         run = int(sp[i_run])
         hklfile = os.path.join(wdir, sp[i_cls], "run_%.2d" % run, "xscale.hkl")
         results.append((hklfile, sp[i_cls], run, # 0,1,2
-                        float(sp[i_cchalf]), float(sp[i_cchalf_ou]), float(sp[i_redun]) # 3,4,5
+                        float(sp[i_cchalf]), float(sp[i_cchalf_ou]), float(sp[i_redun]), # 3,4,5
+                        float(sp[i_cchalf_in]) # 6
                         ))
         cls_runs.setdefault(sp[i_cls], []).append(run)
 
@@ -219,6 +225,13 @@ def choose_best_result(summarydat, log_out):
 
     # Remove non-final runs
     results = [x for x in results if x[2]==max(cls_runs[x[1]])]
+
+    if min_cchalf_in is not None:
+        # NaN is also removed here
+        ok = [x for x in results if x[6] >= min_cchalf_in]
+        log_out.write("%d of %d results have inner shell CC1/2 >= %.1f\n" % (len(ok), len(results), min_cchalf_in))
+        results = ok
+        if not results: return None
 
     results.sort(key=lambda x:x[5], reverse=True)
     if len(results) > 2:
@@ -233,7 +246,8 @@ def choose_best_result(summarydat, log_out):
 # choose_best_result()
 
 def decide_resolution(summarydat, params, log_out):
-    best = choose_best_result(summarydat, log_out)
+    best = choose_best_result(summarydat, log_out,
+                              min_cchalf_in=params.cc_one_half_min*100. if params.skip_no_signal else None)
     if best is None:
         log_out.write("No data for deciding resolution cutoff.\n")
         return None

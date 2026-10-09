@@ -79,5 +79,41 @@ def test_phil_option_default_is_none():
     from yamtbx.dataproc.auto.command_line import auto_multi_merge
     params = iotbx.phil.parse(auto_multi_merge.gui_phil_str).extract()
     assert params.rescut.fit_fallback == "none"
+    assert params.rescut.skip_no_signal is False
     params = iotbx.phil.parse(auto_multi_merge.gui_phil_str).fetch(iotbx.phil.parse("rescut.fit_fallback=shells")).extract()
     assert params.rescut.fit_fallback == "shells"
+
+
+SUMMARY = """\
+# d_min= 1.650 A
+     cluster    ClH run Redun CC1/2 CC1/2.ou CC1/2.in
+cluster_0050   1.74   1  18.2  13.8      4.6     77.8
+cluster_0050   1.74   3   7.1   8.1      3.5     98.6
+cluster_0049   1.00   2  11.0  13.8      1.2      9.0
+cluster_0047   0.98   3   6.8  11.7      3.7     98.5
+cluster_0046   0.84   3   6.5   9.7      2.5     98.4
+cluster_0048   1.00   2   6.4   9.2      3.0      6.6
+cluster_0043   0.59   3   4.7  13.4      3.6     98.5
+cluster_0040   0.53   3   3.7  21.5      5.1     98.5
+cluster_0039   0.48   3   2.9   5.3      4.8     98.1
+"""
+
+def write_summary(tmp_path, text=SUMMARY):
+    f = tmp_path / "cluster_summary.dat"
+    f.write_text(text)
+    return str(f)
+
+def test_choose_best_result_default_is_unchanged(tmp_path):
+    from yamtbx.dataproc.auto.command_line.auto_multi_merge import choose_best_result
+    best = choose_best_result(write_summary(tmp_path), io.StringIO())
+    # top half by redundancy, then the highest overall CC1/2: a cluster without signal
+    assert best.endswith("cluster_0049/run_02/xscale.hkl")
+
+def test_choose_best_result_skips_results_without_inner_signal(tmp_path):
+    from yamtbx.dataproc.auto.command_line.auto_multi_merge import choose_best_result
+    best = choose_best_result(write_summary(tmp_path), io.StringIO(), min_cchalf_in=35.)
+    assert best.endswith("cluster_0047/run_03/xscale.hkl")
+
+def test_choose_best_result_none_when_no_result_has_inner_signal(tmp_path):
+    from yamtbx.dataproc.auto.command_line.auto_multi_merge import choose_best_result
+    assert choose_best_result(write_summary(tmp_path), io.StringIO(), min_cchalf_in=99.) is None
