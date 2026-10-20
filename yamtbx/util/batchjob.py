@@ -84,13 +84,15 @@ class LocalThread(threading.Thread):
     
     def run(self):
         while not self._stopevent.isSet():
-            # Change state if finished
+            # Ask each child once: a child that ends between two polls must not be
+            # dropped from the list without being marked finished (KAMO-005).
+            still_running = []
             for j, p in self.p_list:
-                if p.poll() is not None:
+                if p.poll() is None:
+                    still_running.append((j, p))
+                else:
                     j.state = STATE_FINISHED
-
-            # Keep unfinished jobs
-            self.p_list = [p for p in self.p_list if p[1].poll() is None]
+            self.p_list = still_running
 
             # Register new jobs
             for i in range(self.num_jobs - len(self.p_list)):
