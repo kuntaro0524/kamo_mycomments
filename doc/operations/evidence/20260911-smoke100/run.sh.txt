@@ -1,0 +1,11 @@
+#!/bin/bash
+source /oys/xtal/ccp4/ccp4-9/bin/ccp4.setup-sh
+source /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/activate.sh
+cd /home/kuntaro/kamodev/runs/20260911-kamo-dials-100 || exit 1
+dials.version > versions.txt
+command -v pointless >> versions.txt
+command -v aimless >> versions.txt
+dials.python -B run.py > run.log 2>&1
+run_status=$?
+printf '%s\n' "$run_status" > exit-status.txt
+exit "$run_status"

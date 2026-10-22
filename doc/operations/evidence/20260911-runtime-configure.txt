@@ -1,0 +1,181 @@
+fatal: not a git repository (or any of the parent directories): .git
+fatal: not a git repository (or any of the parent directories): .git
+Python: 3.11.11 "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/conda_base/bin/python"
+Compiler: default
+Build mode: release
+Warning level: 0
+Precompiled Headers: False
+Static libraries: False
+Static exe: False
+Scan Boost headers: False
+Write full flex_fwd.h files: False
+Build Boost.Python extensions: True
+Define BOOST_PYTHON_NO_PY_SIGNATURES: False
+Define BOOST_PYTHON_BOOL_INT_STRICT: True
+Enable OpenMP if possible: False
+Boost threads enabled: True
+Enable CUDA: False
+Enable KOKKOS: False
+Use conda: True
+Use opt_resources if available: False
+Use environment flags: False
+Enable C++11: False
+command_version_suffix: None
+Relocatable paths anchored at: /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build
+Top-down list of all modules involved:
+  prime           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/prime"
+  xfel            "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel"
+  simtbx          "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/simtbx"
+  iota            "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/iota"
+  xia2            "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/xia2"
+  dials           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dials"
+  gltbx           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/gltbx"
+  crys3d          "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/crys3d"
+  mmtbx           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/mmtbx"
+  rstbx           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/rstbx"
+  spotfinder      "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/spotfinder"
+  annlib+adaptbx  "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/annlib"
+                  "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/annlib_adaptbx"
+  dxtbx           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dxtbx"
+  iotbx           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/iotbx"
+  cbflib+adaptbx  "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cbflib"
+                  "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/cbflib_adaptbx"
+  ccp4io+adaptbx  "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/ccp4io"
+                  "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/ccp4io_adaptbx"
+  smtbx           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/smtbx"
+  ucif            "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/ucif"
+  cctbx           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/cctbx"
+  chiltbx         "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/chiltbx"
+  scitbx          "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/scitbx"
+  cma_es          "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/cma_es"
+  fable           "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/fable"
+  omptbx          "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/omptbx"
+  boost+adaptbx   "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/boost"
+                  "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/boost_adaptbx"
+  tbxx            "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/tbxx"
+  yamtbx          "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/yamtbx"
+  libtbx          "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/libtbx"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/dispatcher_include_dials.sh"
+Creating files in build directory: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build"
+    dispatcher_include_template.sh
+    dispatcher_head.sh
+    setpaths.sh
+    setpaths.csh
+    setpaths_all.sh
+    setpaths_all.csh
+    setpaths_debug.sh
+    unsetpaths.sh
+    setpaths_debug.csh
+    unsetpaths.csh
+    SConstruct
+    Makefile
+    run_tests.csh
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/libtbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/yamtbx/yamtbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/boost_adaptbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/fable/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/scitbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/cctbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/smtbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/cbflib_adaptbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/iotbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/spotfinder/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/rstbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/mmtbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/crys3d/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/gltbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dials/src/dials/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/simtbx/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel/ui/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel/cxi/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel/clustering/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel/merging/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel/small_cell/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/prime/command_line"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/libtbx/libtbx_refresh.py"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/boost_adaptbx/libtbx_refresh.py"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/scitbx/libtbx_refresh.py"
+  Generating C++ header files in:
+    "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/include/scitbx/array_family"
+  Generating C++ files in:
+    "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/include/scitbx/array_family/boost_python"
+  Using fable to convert scitbx/lbfgs.f
+Updating entry points for scitbx
+  1 entries for entry point pytest_randomly.random_seeder
+WARNING: The directory '/home/kuntaro/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+DEPRECATION: Loading egg at /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/conda_base/lib/python3.11/site-packages/cheetah_eiger_zmq-0.0.0-py3.11-linux-x86_64.egg is deprecated. pip 25.1 will enforce this behaviour change. A possible replacement is to use pip for package installation. Discussion can be found at https://github.com/pypa/pip/issues/12330
+Obtaining file:///home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dxtbx
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Installing collected packages: dxtbx
+  Attempting uninstall: dxtbx
+    Found existing installation: dxtbx 3.23.0
+    Can't uninstall 'dxtbx'. No files were found to uninstall.
+  DEPRECATION: Legacy editable install of dxtbx==3.23.0 from file:///home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dxtbx (setup.py develop) is deprecated. pip 25.0 will enforce this behaviour change. A possible replacement is to add a pyproject.toml or enable --use-pep517, and use setuptools >= 64. If the resulting installation is not behaving as expected, try using --config-settings editable_mode=compat. Please consult the setuptools documentation for more information. Discussion can be found at https://github.com/pypa/pip/issues/11457
+  Running setup.py develop for dxtbx
+Successfully installed dxtbx-3.23.0
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/cctbx/libtbx_refresh.py"
+  Generating C++ files in:
+    "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/cctbx/eltbx"
+  Generating C++ files in:
+    "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/include/cctbx/boost_python"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/smtbx/libtbx_refresh.py"
+  Generating C++ files in:
+    "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/include/smtbx/boost_python"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/cbflib_adaptbx/libtbx_refresh.py"
+  Copying to lib: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cbflib/pycbf/pycbf.py"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/iotbx/libtbx_refresh.py"
+  Using fable to convert iotbx/pdb/hybrid_36_f.f
+    Writing: iotbx/pdb/hybrid_36_fem.cpp
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dxtbx/libtbx_refresh.py"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/annlib_adaptbx/libtbx_refresh.py"
+  Generating C++ files for self-inclusive approximate nearest neighbour
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/mmtbx/libtbx_refresh.py"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/crys3d/libtbx_refresh.py"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/gltbx/libtbx_refresh.py"
+  Generating C++ files in:
+    "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/gltbx"
+      Info: Re-using existing font cpp files.
+      Hint: Remove gltbx/FONTS_UCS_DONE_FLAG_FILE
+            to force generation of new font files.
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dials/libtbx_refresh.py"
+DIALS 3.23.0-g7aff524e7-release
+Updating entry points for dials
+WARNING: The directory '/home/kuntaro/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+DEPRECATION: Loading egg at /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/conda_base/lib/python3.11/site-packages/cheetah_eiger_zmq-0.0.0-py3.11-linux-x86_64.egg is deprecated. pip 25.1 will enforce this behaviour change. A possible replacement is to use pip for package installation. Discussion can be found at https://github.com/pypa/pip/issues/12330
+Obtaining file:///home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dials
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Installing collected packages: dials
+  Attempting uninstall: dials
+    Found existing installation: dials 3.22.dev0
+    Can't uninstall 'dials'. No files were found to uninstall.
+  DEPRECATION: Legacy editable install of dials==3.22.dev0 from file:///home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/dials (setup.py develop) is deprecated. pip 25.0 will enforce this behaviour change. A possible replacement is to add a pyproject.toml or enable --use-pep517, and use setuptools >= 64. If the resulting installation is not behaving as expected, try using --config-settings editable_mode=compat. Please consult the setuptools documentation for more information. Discussion can be found at https://github.com/pypa/pip/issues/11457
+  Running setup.py develop for dials
+Successfully installed dials-3.22.dev0
+Identified autocompletable commands: dials.find_spots dials.geometry_viewer dials.index dials.integrate dials.reciprocal_lattice_viewer dials.refine dials.reindex dials.rl_png dials.split_still_data
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/xia2/libtbx_refresh.py"
+WARNING: The directory '/home/kuntaro/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+DEPRECATION: Loading egg at /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/conda_base/lib/python3.11/site-packages/cheetah_eiger_zmq-0.0.0-py3.11-linux-x86_64.egg is deprecated. pip 25.1 will enforce this behaviour change. A possible replacement is to use pip for package installation. Discussion can be found at https://github.com/pypa/pip/issues/12330
+Obtaining file:///home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/xia2
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Installing collected packages: xia2
+  Attempting uninstall: xia2
+    Found existing installation: xia2 3.23.0
+    Can't uninstall 'xia2'. No files were found to uninstall.
+  DEPRECATION: Legacy editable install of xia2==3.23.0 from file:///home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/xia2 (setup.py develop) is deprecated. pip 25.0 will enforce this behaviour change. A possible replacement is to add a pyproject.toml or enable --use-pep517, and use setuptools >= 64. If the resulting installation is not behaving as expected, try using --config-settings editable_mode=compat. Please consult the setuptools documentation for more information. Discussion can be found at https://github.com/pypa/pip/issues/11457
+  Running setup.py develop for xia2
+Successfully installed xia2-3.23.0
+XIA2 3.23.0
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/modules/cctbx_project/xfel/libtbx_refresh.py"
+Processing: "/home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/build/exe_dev"
+Done.
+Activate in Bash: source /home/kuntaro/kamodev/runtime/dials-3.23.0-kamo/activate.sh

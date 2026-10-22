@@ -55,7 +55,7 @@ def run(mtz, mtz_out, ranges):
             sel &= tmp
 
         print("%d reflections removed from %s" % (sum(~sel), ar.info().label_string()))
-        fake_label = 2 * string.uppercase[i]
+        fake_label = 2 * string.ascii_uppercase[i]
         for lab in guess_array_output_labels(ar):
             labels.append(lab)
         array_types = get_original_array_types(mtz_file, ar.info().labels)
@@ -71,7 +71,7 @@ def run(mtz, mtz_out, ranges):
 
     # Decide labels and write mtz file
     mtz_object = mtz_dataset.mtz_object()
-    invalid_chars = re.compile("[^A-Za-z0-9_\-+\(\)]")
+    invalid_chars = re.compile(r"[^A-Za-z0-9_\-+\(\)]")
 
     used = dict([ (label, 0) for label in labels ])
 

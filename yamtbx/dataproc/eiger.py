@@ -44,18 +44,18 @@ def read_stream_data(frames, bss_job_mode=4):
 
     if header["encoding"] == "lz4<":
         data = lz4.loads(struct.pack('<I', size) + frames[2].bytes)
-        data = numpy.fromstring(data, dtype=dtype).reshape(shape)
+        data = numpy.frombuffer(data, dtype=dtype).reshape(shape)
         assert data.size * data.dtype.itemsize == size
     elif header["encoding"] == "bs32-lz4<":
         data = frames[2].bytes
-        blob = numpy.fromstring(data[12:],dtype=numpy.uint8)
+        blob = numpy.frombuffer(data[12:],dtype=numpy.uint8)
         # blocksize is big endian uint32 starting at byte 8, divided by element size
         blocksize = numpy.ndarray(shape=(),dtype=">u4", buffer=data[8:12])/4
         data = bitshuffle.decompress_lz4(blob, shape, numpy.dtype(dtype), blocksize)
         data = data.reshape(shape)
     elif header["encoding"] == "bs16-lz4<":
         data = frames[2].bytes
-        blob = numpy.fromstring(data[12:],dtype=numpy.uint8)
+        blob = numpy.frombuffer(data[12:],dtype=numpy.uint8)
         data = bitshuffle.decompress_lz4(blob, shape, numpy.dtype(dtype))
         data = data.reshape(shape)
     else:

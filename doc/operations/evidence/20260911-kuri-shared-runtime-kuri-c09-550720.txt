@@ -1,0 +1,16 @@
+job_id=550720
+partition=kuri
+hostname=kuri-c09.spring8.or.jp
+Linux kuri-c09.spring8.or.jp 7.0.0-28-generic #28~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 15:50:57 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+dials_version_command=/staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/build/bin/dials.version
+kamo_command=/staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/build/bin/kamo
+dials_python_command=/staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/build/bin/dials.python
+DIALS 3.23.0-g7aff524e7-release
+Python 3.11.11
+Installed in: /staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/modules/dials/src/dials
+kamo_help=ok
+python=/staff/Common/kuntaro/kamodev/runtimes/dials-3.23.0-kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/conda_base/bin/python
+yamtbx=/staff/Common/kuntaro/kamodev/checkouts/kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/yamtbx/__init__.py
+resources=/staff/Common/kuntaro/kamodev/checkouts/kamo-c811f9f21a177bc97e9f21066d3585474aa880a1/yamtbx
+cwd=/tmp
+checkout_commit_and_state=ok

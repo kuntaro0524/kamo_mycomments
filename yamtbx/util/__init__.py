@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import glob
 import tempfile
+import socket
 import traceback
 from libtbx.utils import null_out
 import libtbx.load_env
@@ -274,10 +275,25 @@ def get_temp_local_dir(prefix, min_bytes=None, min_kb=None, min_mb=None, min_gb=
     elif type(additional_tmpd) in (list, tuple):
         tmpdirs.extend(additional_tmpd)
 
+    last_error = None
     for tmpdir in tmpdirs:
         if check_disk_free_bytes(tmpdir) >= min_free_bytes:
-            return tempfile.mkdtemp(prefix=prefix, dir=tmpdir)
+            try:
+                d = tempfile.mkdtemp(prefix=prefix, dir=tmpdir)
+            except OSError as e:
+                # The directory looked usable but creating a temp dir in it failed (e.g. /dev/shm vanished
+                # or became unwritable between the check and mkdtemp). Try the next candidate, loudly.
+                last_error = e
+                sys.stderr.write("!!! WARNING: cannot create a temporary directory in %s on %s (%s); "
+                                 "trying the next candidate\n" % (tmpdir, socket.gethostname(), e))
+                sys.stderr.flush()
+                continue
+            if last_error is not None:
+                sys.stderr.write("!!! WARNING: fell back to %s for a temporary directory on %s\n" % (d, socket.gethostname()))
+                sys.stderr.flush()
+            return d
 
+    if last_error is not None: raise last_error
     return None
 # get_temp_local_dir()
 

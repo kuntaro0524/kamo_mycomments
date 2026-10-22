@@ -47,7 +47,7 @@ def run(mtz, bs):
         labels = ["H", "K", "L"]
         
         for i, ar in enumerate(miller_arrays):
-            fake_label = 2 * string.uppercase[i]
+            fake_label = 2 * string.ascii_uppercase[i]
             for lab in guess_array_output_labels(ar):
                 labels.append(lab)
             array_types = get_original_array_types(mtz_file, ar.info().labels)
@@ -68,7 +68,7 @@ def run(mtz, bs):
 
         # Decide labels and write mtz file
         mtz_object = mtz_dataset.mtz_object()
-        invalid_chars = re.compile("[^A-Za-z0-9_\-+\(\)]")
+        invalid_chars = re.compile(r"[^A-Za-z0-9_\-+\(\)]")
 
         used = dict([ (label, 0) for label in labels ])
 
