@@ -1,0 +1,13 @@
+Best Solution:    Laue group C 1 2/m 1
+
+   Reindex operator:                 [h-k,h+k,l]               
+   Laue group probability:             0.217
+   Systematic absence probability:     1.000
+   Total probability:                  0.217
+   Space group confidence:             0.047
+   Laue group confidence               0.047
+
+WARNING: You will have to determine the true space group later
+The 'space group' written to output file may be missing possible screw components
+
+   Unit cell:   167.86   96.78  104.53      89.47   90.18   89.82

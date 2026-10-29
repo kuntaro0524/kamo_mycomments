@@ -1,0 +1,12 @@
+Best Solution:    space group P 62 2 2
+
+   Reindex operator:                  [h,-k,-l]                
+   Laue group probability:             0.210
+   Systematic absence probability:     0.950
+   Total probability:                  0.199
+   Space group confidence:             0.150
+   Laue group confidence               0.158
+
+WARNING: You will have to resolve the enantiomorphic ambiguity later
+
+   Unit cell:    97.15   97.49  104.57      90.19   89.73  119.69

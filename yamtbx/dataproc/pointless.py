@@ -39,8 +39,11 @@ def parse_pointless_output_for_symm(output):
     for l in lines:
         if l.startswith("Best Solution:"):
             group_type = l.split()[2]
-            assert group_type in ("point", "space") # How can we support Laue?
-            best_symm = l[l.index("group")+6:].strip()
+            # pointless answers "Laue group" when it cannot decide the space group (KAMO-007).
+            # A Laue group is not a space group, so no symmetry is returned; the other values
+            # are still read.  Callers treat a result without "symm" as "pointless failed".
+            if group_type in ("point", "space"):
+                best_symm = l[l.index("group")+6:].strip()
             read_flag = True
         elif read_flag and "Reindex operator:" in l:
             tmp = l.split(":")[1]
